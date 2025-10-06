@@ -1,0 +1,32 @@
+services:
+  api:
+    build:
+      context: ./backend
+    command: go run ./cmd/api
+    working_dir: /src
+    volumes:
+      - ./backend:/src
+    ports:
+      - "8080:8080"
+    depends_on:
+      - sqlite
+
+  frontend:
+    build:
+      context: ./frontend
+    command: npm run dev
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+    ports:
+      - "3000:3000"
+
+  sqlite:
+    image: keinos/sqlite3:latest
+    command: tail -f /dev/null
+    volumes:
+      - sqlite-data:/var/lib/sqlite
+
+volumes:
+  sqlite-data:
+    driver: local
