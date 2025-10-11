@@ -33,7 +33,19 @@
 - **Database:** **SQLite** (embedded, zero-config) for users, problems, submissions, and scores—great for a lean MVP. ([SQLite](https://sqlite.org/?utm_source=chatgpt.com "SQLite Home Page"))
     
 - **Sandboxed execution:** Each submission runs in an **ephemeral Docker** container with CPU/RAM/time limits and **seccomp** syscall filtering; hardening options like **gVisor** can be added in production. ([Docker Documentation](https://docs.docker.com/engine/containers/resource_constraints/?utm_source=chatgpt.com "Resource constraints"))
-    
+
+---
+
+# Developer setup
+
+- **Go:** `go1.22.5` (pinned via `toolchain` in `backend/go.mod`).
+- **Node.js:** `20.15.0` (see `.nvmrc` and `frontend/package.json`).
+- Install dependencies once with `make frontend-install`.
+- Run the API locally with `make backend-run`; stop with `Ctrl+C`.
+- Execute backend checks via `make backend-test`, `make backend-fmt`, and `make backend-lint`.
+- Build or lint the UI with `make frontend-build` and `make frontend-lint`.
+- Bring the full stack up using `make compose-up` (wraps `docker compose up --build`).
+- Inspect container readiness with `docker compose ps` and tail service logs via `docker compose logs -f api`.
 
 ---
 
