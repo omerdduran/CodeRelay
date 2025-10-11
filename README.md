@@ -1,4 +1,4 @@
-**CodeRelay** is a fast, social way to practice algorithms and data structures. Players join a live room, pick a challenge, write code in the`` browser, and watch rankings update in real time. It’s built for bootcamps, university clubs, engineering teams, and streamers who want competitive energy without setup headaches.
+**CodeRelay** is a fast, social way to practice algorithms and data structures. Players join a live room, pick a challenge, write code in the browser, and watch rankings update in real time. It’s built for bootcamps, university clubs, engineering teams, and streamers who want competitive energy without setup headaches.
 
 ## What makes it fun
 
@@ -26,13 +26,13 @@
 
 ## Technology overview
 
-- **Frontend:** React with **Monaco Editor** for a familiar, VS Code–like experience; real-time updates via **WebSockets** (two-way communication—no polling). ([Microsoft GitHub](https://microsoft.github.io/monaco-editor/?utm_source=chatgpt.com "Monaco Editor"))
+- **Frontend:** React with **Monaco Editor** for a familiar, VS Code–like experience; real-time updates via **WebSockets** (two-way communication—no polling). ([Microsoft GitHub](https://microsoft.github.io/monaco-editor/ "Monaco Editor"))
     
 - **Backend:** **Go** for low-latency rooms and judging.
     
-- **Database:** **SQLite** (embedded, zero-config) for users, problems, submissions, and scores—great for a lean MVP. ([SQLite](https://sqlite.org/?utm_source=chatgpt.com "SQLite Home Page"))
+- **Database:** **SQLite** (embedded, zero-config) for users, problems, submissions, and scores—great for a lean MVP. ([SQLite](https://sqlite.org/"SQLite Home Page"))
     
-- **Sandboxed execution:** Each submission runs in an **ephemeral Docker** container with CPU/RAM/time limits and **seccomp** syscall filtering; hardening options like **gVisor** can be added in production. ([Docker Documentation](https://docs.docker.com/engine/containers/resource_constraints/?utm_source=chatgpt.com "Resource constraints"))
+- **Sandboxed execution:** Each submission runs in an **ephemeral Docker** container with CPU/RAM/time limits and **seccomp** syscall filtering; hardening options like **gVisor** can be added in production. ([Docker Documentation](https://docs.docker.com/engine/containers/resource_constraints/ "Resource constraints"))
     
 
 ---
@@ -130,4 +130,9 @@
 - “Code preview” opt-in for players who want to share live progress with spectators.
     
 - Weekly mini-tournaments and season stats.
-``
+
+## Team Members
+- Bruna Pierobon
+- Julia Correia Bindi
+- Ömer Duran
+- Deniz Can Çalkın
