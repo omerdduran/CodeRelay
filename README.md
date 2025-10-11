@@ -142,4 +142,9 @@
 - “Code preview” opt-in for players who want to share live progress with spectators.
     
 - Weekly mini-tournaments and season stats.
-``
+
+## Team Members
+- Bruna Pierobon
+- Julia Correia Bindi
+- Ömer Duran
+- Deniz Can Çalkın
