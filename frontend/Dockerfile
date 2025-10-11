@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.7
 
-FROM node:20.15.0 AS builder
+FROM node:22.14.0 AS builder
 WORKDIR /app
 
 COPY package*.json ./
@@ -9,7 +9,7 @@ RUN npm install
 COPY . .
 RUN npm run build
 
-FROM node:20.15.0-alpine AS runtime
+FROM node:22.14.0-alpine AS runtime
 WORKDIR /app
 
 RUN apk add --no-cache curl

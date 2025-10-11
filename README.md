@@ -39,7 +39,7 @@
 # Developer setup
 
 - **Go:** `go1.22.5` (pinned via `toolchain` in `backend/go.mod`).
-- **Node.js:** `20.15.0` (see `.nvmrc` and `frontend/package.json`).
+- **Node.js:** `22.14.0` (see `.nvmrc` and `frontend/package.json`).
 - Install dependencies once with `make frontend-install`.
 - Run the API locally with `make backend-run`; stop with `Ctrl+C`.
 - Execute backend checks via `make backend-test`, `make backend-fmt`, and `make backend-lint`.
