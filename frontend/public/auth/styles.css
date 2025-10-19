@@ -1,0 +1,100 @@
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  background: #f5f7fb;
+  display: grid;
+  place-items: center;
+}
+
+.card {
+  width: 420px;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 12px 36px rgba(0,0,0,.12);
+  padding: 28px 28px 30px;
+  position: relative;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.logo svg { width: 46px; height: 46px; }
+.logo span {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: .2px;
+}
+
+.stack {
+  position: relative;
+  height: 320px;
+  transition: height .35s ease;
+}
+.panel {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  opacity: 0;
+  transform: translateX(18px);
+  transition: opacity .35s ease, transform .35s ease;
+  pointer-events: none;
+}
+
+.signin { opacity: 1; transform: translateX(0); pointer-events: auto; }
+
+#signup:target ~ .stack {
+  height: 320px;
+}
+#signup:target ~ .stack .signin { opacity: 0; transform: translateX(-18px); pointer-events: none; }
+#signup:target ~ .stack .signup { opacity: 1; transform: translateX(0); pointer-events: auto; }
+
+#signin:target ~ .stack {
+  height: 200px;
+}
+#signin:target ~ .stack .signin { opacity: 1; transform: translateX(0); pointer-events: auto; }
+#signin:target ~ .stack .signup { opacity: 0; transform: translateX(18px); pointer-events: none; }
+
+input {
+  width: 100%;
+  padding: 13px 14px;
+  border: 1px solid #e1e4ea;
+  border-radius: 10px;
+  font-size: 14px;
+  outline: none;
+  background: #fff;
+}
+input:focus { border-color: #ffa116; }
+
+.btn {
+  margin-top: 4px;
+  background: linear-gradient(90deg, #4b5563, #111827);
+  color: #fff;
+  border: 0;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.links {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 6px;
+  font-size: 14px;
+}
+.links a { color: #2b425a; text-decoration: none; }
+.links span { color: #6b7280; }
+
+@media (max-width: 440px) {
+  .card { width: 92vw; padding: 24px; }
+  .stack { height: 300px; }
+}

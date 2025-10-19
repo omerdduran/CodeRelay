@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LeetCode Auth – CSS only</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <div class="card">
+    <!-- state anchors for :target -->
+    <a id="signin"></a>
+    <a id="signup"></a>
+
+    <!-- logo on top and centered -->
+    <div class="logo">
+        <img src="demo.svg.png" alt="Demo Logo" width="40px">
+        <span>CodeRelay</span>
+    </div>
+
+    <!-- stacked panels occupy the same space -->
+    <div class="stack">
+      <!-- Sign In -->
+      <form class="panel signin">
+        <input type="text" placeholder="Username or E-mail">
+        <input type="password" placeholder="Password">
+        <button type="button" class="btn">Sign In</button>
+        <div class="links">
+          <a href="#">Forgot Password?</a>
+          <a href="#signup">Sign Up</a>
+        </div>
+      </form>
+
+      <!-- Sign Up -->
+      <form class="panel signup">
+        <input type="text" placeholder="Username">
+        <input type="password" placeholder="Password">
+        <input type="password" placeholder="Confirm password">
+        <input type="email" placeholder="E-mail address">
+        <button type="button" class="btn">Sign Up</button>
+        <div class="links">
+          <span>Have an account?</span>
+          <a href="#signin">Sign In</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</body>
+</html>
