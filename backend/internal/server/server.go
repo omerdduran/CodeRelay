@@ -27,6 +27,7 @@ type Server struct {
 	cfg        Config
 	httpServer *http.Server
 	store      *storage.SQLite
+	ownsStore  bool // whether server should close the store
 }
 
 // New will wire up routing, storage, and worker coordination.
@@ -45,6 +46,7 @@ func New(cfg Config) *Server {
 			Addr:    cfg.Addr,
 			Handler: corsMiddleware(mux),
 		},
+		ownsStore: true,
 	}
 
 	// Health check
@@ -61,20 +63,22 @@ func New(cfg Config) *Server {
 
 // Start boots the HTTP server and blocks until the context is canceled.
 func (s *Server) Start(ctx context.Context) error {
-	// Initialize database
-	store, err := storage.Open(s.cfg.DBPath)
-	if err != nil {
-		return err
-	}
-	s.store = store
+	// Initialize database if not already set
+	if s.store == nil {
+		store, err := storage.Open(s.cfg.DBPath)
+		if err != nil {
+			return err
+		}
+		s.store = store
+		s.ownsStore = true
 
-	// Run migrations and seed
-	if err := s.store.Migrate(); err != nil {
-		return err
-	}
-	if err := s.store.Seed(); err != nil {
-		// Seed errors are non-fatal (data might already exist)
-		// Just log it
+		// Run migrations and seed
+		if err := s.store.Migrate(); err != nil {
+			return err
+		}
+		if err := s.store.Seed(); err != nil {
+			// Seed errors are non-fatal (data might already exist)
+		}
 	}
 
 	errCh := make(chan error, 1)
@@ -95,7 +99,7 @@ func (s *Server) Start(ctx context.Context) error {
 			return err
 		}
 
-		if s.store != nil {
+		if s.store != nil && s.ownsStore {
 			s.store.Close()
 		}
 

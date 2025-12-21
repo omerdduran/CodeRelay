@@ -6,6 +6,30 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [2024-12-21] - Phase 3: Code Runner
+
+### Added
+
+#### Docker Sandbox
+- Python 3.11 runner Dockerfile with non-root user
+- Resource limits: CPU, memory, process count, timeout
+- Security: No network access, read-only filesystem
+
+#### Runner Package
+- `runner.go` - Docker-based code execution
+- `verdict.go` - Output comparison (AC/WA/TLE/RE)
+
+#### Background Worker
+- `worker.go` - Processes queued submissions
+- Polls every 1 second for new submissions
+- Runs code against all test cases
+- Updates submission status with verdict
+
+### Changed
+- `main.go` - Now starts worker alongside HTTP server
+
+---
+
 ## [2024-12-21] - Phase 2: Basic Frontend
 
 ### Added
