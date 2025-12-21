@@ -1,0 +1,145 @@
+.loadingScreen {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 50%, #0f0f23 100%);
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.errorScreen {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 50%, #0f0f23 100%);
+    color: #f87171;
+}
+
+.backLink {
+    color: #6366f1;
+    text-decoration: none;
+}
+
+.backLink:hover {
+    text-decoration: underline;
+}
+
+.spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-top-color: #6366f1;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 50%, #0f0f23 100%);
+    overflow: hidden;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    background: rgba(0, 0, 0, 0.3);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+}
+
+.backBtn {
+    padding: 0.5rem 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+}
+
+.backBtn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.userInfo {
+    display: flex;
+    align-items: center;
+}
+
+.nickname {
+    padding: 0.375rem 0.75rem;
+    background: rgba(99, 102, 241, 0.2);
+    border-radius: 6px;
+    font-size: 0.875rem;
+    color: #a8a8ff;
+}
+
+.content {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: rgba(255, 255, 255, 0.1);
+    min-height: 0;
+    overflow: hidden;
+}
+
+.leftPanel {
+    background: #0f0f23;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.rightPanel {
+    background: #0f0f23;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.editorSection {
+    flex: 1;
+    min-height: 0;
+    padding: 1rem;
+    padding-bottom: 0;
+    overflow: hidden;
+}
+
+.actionBar {
+    padding: 1rem;
+    display: flex;
+    justify-content: flex-end;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+}
+
+.resultsSection {
+    height: 180px;
+    flex-shrink: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.2);
+    overflow-y: auto;
+}
+
+@media (max-width: 900px) {
+    .content {
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr 1fr;
+    }
+}

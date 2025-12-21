@@ -6,6 +6,37 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [2024-12-21] - Phase 2: Basic Frontend
+
+### Added
+
+#### Components
+- `NicknameScreen` - User authentication with localStorage persistence
+- `CodeEditor` - Monaco Editor with Python syntax highlighting
+- `ProblemDescription` - Markdown rendering with react-markdown
+- `ResultsPanel` - Submission status display with color-coded verdicts
+- `SubmitButton` - Loading state and submission trigger
+
+#### Pages
+- Main page (`/`) - Problem list with user info
+- Problem page (`/problem/[id]`) - Split layout with editor and results
+
+#### Hooks & Utilities
+- `useUser` - User state management with localStorage
+- `lib/api.js` - API client for backend communication
+
+#### Styling
+- Modern dark theme with glassmorphism effects
+- Responsive split layout for problem solving
+- Custom scrollbar styling
+
+### Dependencies Added
+- `@monaco-editor/react` - Code editor
+- `react-markdown` - Markdown rendering
+- `remark-gfm` - GitHub Flavored Markdown support
+
+---
+
 ## [2024-12-21] - Phase 1: Database & Core API
 
 ### Added
@@ -32,35 +63,3 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 #### Testing
 - Storage layer unit tests (5 tests)
 - API handler unit tests (6 tests)
-
-### Files Added
-- `backend/internal/storage/schema.sql`
-- `backend/internal/storage/seed.sql`
-- `backend/internal/storage/sqlite.go` (rewritten)
-- `backend/internal/storage/sqlite_test.go`
-- `backend/internal/server/handlers.go`
-- `backend/internal/server/handlers_test.go`
-- `backend/internal/server/server.go` (rewritten)
-
----
-
-<!-- 
-Example format:
-
-## [2024-01-15] - Feature Name
-
-### Added
-- New features added
-
-### Changed
-- Changes to existing functionality
-
-### Fixed
-- Bug fixes
-
-### Removed
-- Removed features
-
-### Security
-- Security updates
--->
