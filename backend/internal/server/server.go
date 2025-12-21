@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"coderelay/backend/internal/storage"
+	"coderelay/backend/internal/ws"
 )
 
 // Config controls how the HTTP server listens for requests.
@@ -27,11 +28,12 @@ type Server struct {
 	cfg        Config
 	httpServer *http.Server
 	store      *storage.SQLite
-	ownsStore  bool // whether server should close the store
+	hub        *ws.Hub
+	ownsStore  bool
 }
 
 // New will wire up routing, storage, and worker coordination.
-func New(cfg Config) *Server {
+func New(cfg Config, hub *ws.Hub) *Server {
 	if cfg.Addr == "" {
 		cfg.Addr = ":8080"
 	}
@@ -46,6 +48,7 @@ func New(cfg Config) *Server {
 			Addr:    cfg.Addr,
 			Handler: corsMiddleware(mux),
 		},
+		hub:       hub,
 		ownsStore: true,
 	}
 
@@ -57,6 +60,11 @@ func New(cfg Config) *Server {
 	mux.HandleFunc("GET /api/problems/", srv.handleGetProblem)
 	mux.HandleFunc("POST /api/submissions", srv.handleCreateSubmission)
 	mux.HandleFunc("GET /api/submissions/", srv.handleGetSubmission)
+	mux.HandleFunc("GET /api/leaderboard", srv.handleLeaderboard)
+	mux.HandleFunc("POST /api/users", srv.handleCreateUser)
+
+	// WebSocket
+	mux.HandleFunc("GET /ws", srv.handleWebSocket)
 
 	return srv
 }
@@ -119,6 +127,10 @@ func (s *Server) handleHealth(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewEncoder(w).Encode(resp); err != nil {
 		http.Error(w, "health encoding failed", http.StatusInternalServerError)
 	}
+}
+
+func (s *Server) handleWebSocket(w http.ResponseWriter, r *http.Request) {
+	ws.ServeWs(s.hub, w, r)
 }
 
 // corsMiddleware adds CORS headers for development.

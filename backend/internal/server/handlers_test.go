@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"coderelay/backend/internal/storage"
+	"coderelay/backend/internal/ws"
 )
 
 func setupTestServer(t *testing.T) (*Server, func()) {
@@ -26,7 +27,8 @@ func setupTestServer(t *testing.T) (*Server, func()) {
 		t.Fatalf("failed to seed: %v", err)
 	}
 
-	srv := New(Config{Addr: ":8080", DBPath: dbPath})
+	hub := ws.NewHub()
+	srv := New(Config{Addr: ":8080", DBPath: dbPath}, hub)
 	srv.store = store
 
 	cleanup := func() {

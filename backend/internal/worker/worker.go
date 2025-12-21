@@ -7,20 +7,23 @@ import (
 
 	"coderelay/backend/internal/runner"
 	"coderelay/backend/internal/storage"
+	"coderelay/backend/internal/ws"
 )
 
 // Worker processes queued submissions in the background
 type Worker struct {
 	store    *storage.SQLite
 	runner   *runner.Runner
+	hub      *ws.Hub
 	interval time.Duration
 }
 
 // New creates a new submission worker
-func New(store *storage.SQLite) *Worker {
+func New(store *storage.SQLite, hub *ws.Hub) *Worker {
 	return &Worker{
 		store:    store,
 		runner:   runner.New(),
+		hub:      hub,
 		interval: 1 * time.Second,
 	}
 }
@@ -59,25 +62,27 @@ func (w *Worker) processNext() {
 
 	log.Printf("worker: processing submission #%d", sub.ID)
 
-	// Update status to running
+	// Update status to running and broadcast
 	if err := w.store.UpdateSubmissionStatus(sub.ID, "running", nil); err != nil {
 		log.Printf("worker: failed to update status: %v", err)
 		return
 	}
+	w.broadcastUpdate(sub.ID, sub.UserID, sub.ProblemID, "running", nil)
 
 	// Get problem and test cases
 	testCases, err := w.store.GetTestCasesByProblemID(sub.ProblemID)
 	if err != nil {
 		log.Printf("worker: failed to get test cases: %v", err)
 		w.store.UpdateSubmissionStatus(sub.ID, "RE", nil)
+		w.broadcastUpdate(sub.ID, sub.UserID, sub.ProblemID, "RE", nil)
 		return
 	}
 
-	// Get problem for time limit
 	problem, err := w.store.GetProblemByID(sub.ProblemID)
 	if err != nil {
 		log.Printf("worker: failed to get problem: %v", err)
 		w.store.UpdateSubmissionStatus(sub.ID, "RE", nil)
+		w.broadcastUpdate(sub.ID, sub.UserID, sub.ProblemID, "RE", nil)
 		return
 	}
 
@@ -107,19 +112,26 @@ func (w *Worker) processNext() {
 		}
 	}
 
-	// Update final status
+	// Update final status and broadcast
 	runtimeMs := int(totalRuntime.Milliseconds())
 	if err := w.store.UpdateSubmissionStatus(sub.ID, string(finalVerdict), &runtimeMs); err != nil {
 		log.Printf("worker: failed to update final status: %v", err)
 		return
 	}
+	w.broadcastUpdate(sub.ID, sub.UserID, sub.ProblemID, string(finalVerdict), &runtimeMs)
 
 	log.Printf("worker: submission #%d complete: %s (%dms)", sub.ID, finalVerdict, runtimeMs)
 }
 
+// broadcastUpdate sends a submission update via WebSocket
+func (w *Worker) broadcastUpdate(subID, userID, problemID int64, status string, runtimeMs *int) {
+	if w.hub != nil {
+		w.hub.BroadcastSubmissionUpdate(subID, userID, problemID, status, runtimeMs)
+	}
+}
+
 // findQueuedSubmission gets the oldest queued submission
 func (w *Worker) findQueuedSubmission() (*storage.Submission, error) {
-	// Query for oldest queued submission
 	row := w.store.DB.QueryRow(`
 		SELECT id, user_id, problem_id, code, language, status, runtime_ms, created_at 
 		FROM submissions 
@@ -132,7 +144,7 @@ func (w *Worker) findQueuedSubmission() (*storage.Submission, error) {
 	var runtimeMs *int
 	err := row.Scan(&sub.ID, &sub.UserID, &sub.ProblemID, &sub.Code, &sub.Language, &sub.Status, &runtimeMs, &sub.CreatedAt)
 	if err != nil {
-		return nil, nil // No queued submissions
+		return nil, nil
 	}
 
 	return &sub, nil

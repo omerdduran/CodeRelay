@@ -1,0 +1,83 @@
+.container {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+    color: #fff;
+}
+
+.status {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.loading,
+.empty {
+    padding: 2rem;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.875rem;
+}
+
+.list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.entry {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.entry:last-child {
+    border-bottom: none;
+}
+
+.entry:first-child {
+    background: rgba(255, 215, 0, 0.1);
+}
+
+.entry:nth-child(2) {
+    background: rgba(192, 192, 192, 0.05);
+}
+
+.entry:nth-child(3) {
+    background: rgba(205, 127, 50, 0.05);
+}
+
+.rank {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #6366f1;
+    min-width: 2.5rem;
+}
+
+.nickname {
+    flex: 1;
+    font-size: 0.875rem;
+    color: #fff;
+}
+
+.time {
+    font-size: 0.75rem;
+    color: #10b981;
+    font-family: 'Fira Code', monospace;
+}
