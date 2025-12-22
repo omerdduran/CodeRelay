@@ -63,6 +63,11 @@ func New(cfg Config, hub *ws.Hub) *Server {
 	mux.HandleFunc("GET /api/leaderboard", srv.handleLeaderboard)
 	mux.HandleFunc("POST /api/users", srv.handleCreateUser)
 
+	// Race routes
+	mux.HandleFunc("POST /api/races", srv.handleCreateRace)
+	mux.HandleFunc("GET /api/races/", srv.handleGetRace)
+	mux.HandleFunc("POST /api/races/", srv.handleRaceAction)
+
 	// WebSocket
 	mux.HandleFunc("GET /ws", srv.handleWebSocket)
 

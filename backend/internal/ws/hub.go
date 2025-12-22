@@ -14,6 +14,7 @@ const (
 	TypeLeaderboard      MessageType = "leaderboard"
 	TypeTimer            MessageType = "timer"
 	TypeError            MessageType = "error"
+	TypeRaceEvent        MessageType = "race_event"
 )
 
 // Message represents a WebSocket message

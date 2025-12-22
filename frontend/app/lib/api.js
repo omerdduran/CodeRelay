@@ -42,3 +42,41 @@ export async function createUser(nickname) {
     if (!res.ok) throw new Error('Failed to create user');
     return res.json();
 }
+
+// --- Race API ---
+
+export async function createRace(userId, problemId) {
+    const res = await fetch(`${API_URL}/api/races`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: userId, problem_id: problemId }),
+    });
+    if (!res.ok) throw new Error('Failed to create race');
+    return res.json();
+}
+
+export async function fetchRace(roomCode) {
+    const res = await fetch(`${API_URL}/api/races/${roomCode}`);
+    if (!res.ok) throw new Error('Failed to fetch race');
+    return res.json();
+}
+
+export async function joinRace(roomCode, userId) {
+    const res = await fetch(`${API_URL}/api/races/${roomCode}/join`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: userId }),
+    });
+    if (!res.ok) throw new Error('Failed to join race');
+    return res.json();
+}
+
+export async function startRace(roomCode, userId) {
+    const res = await fetch(`${API_URL}/api/races/${roomCode}/start`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: userId }),
+    });
+    if (!res.ok) throw new Error('Failed to start race');
+    return res.json();
+}

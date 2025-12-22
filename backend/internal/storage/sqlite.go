@@ -294,3 +294,129 @@ func (s *SQLite) ListSubmissionsByProblem(problemID int64) ([]Submission, error)
 	}
 	return subs, nil
 }
+
+// --- Race Operations ---
+
+// Race represents a competitive coding room.
+type Race struct {
+	ID         int64             `json:"id"`
+	RoomCode   string            `json:"room_code"`
+	ProblemID  int64             `json:"problem_id"`
+	HostUserID int64             `json:"host_user_id"`
+	Status     string            `json:"status"`
+	StartTime  *time.Time        `json:"start_time,omitempty"`
+	CreatedAt  time.Time         `json:"created_at"`
+	Players    []RaceParticipant `json:"players,omitempty"`
+}
+
+// RaceParticipant represents a player in a race.
+type RaceParticipant struct {
+	RaceID     int64   `json:"race_id"`
+	UserID     int64   `json:"user_id"`
+	Nickname   string  `json:"nickname,omitempty"`
+	Status     string  `json:"status"`
+	FinishTime *int    `json:"finish_time,omitempty"`
+	Verdict    *string `json:"verdict,omitempty"`
+}
+
+// CreateRace creates a new race room.
+func (s *SQLite) CreateRace(roomCode string, problemID, hostUserID int64) (*Race, error) {
+	result, err := s.DB.Exec(
+		"INSERT INTO races (room_code, problem_id, host_user_id) VALUES (?, ?, ?)",
+		roomCode, problemID, hostUserID,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("create race: %w", err)
+	}
+
+	id, _ := result.LastInsertId()
+
+	// Auto-join host
+	_, err = s.DB.Exec("INSERT INTO race_participants (race_id, user_id) VALUES (?, ?)", id, hostUserID)
+	if err != nil {
+		return nil, fmt.Errorf("add host to race: %w", err)
+	}
+
+	return s.GetRaceByCode(roomCode)
+}
+
+// GetRaceByCode returns a race by its room code.
+func (s *SQLite) GetRaceByCode(code string) (*Race, error) {
+	var race Race
+	var startTime sql.NullTime
+
+	err := s.DB.QueryRow(
+		"SELECT id, room_code, problem_id, host_user_id, status, start_time, created_at FROM races WHERE room_code = ?",
+		code,
+	).Scan(&race.ID, &race.RoomCode, &race.ProblemID, &race.HostUserID, &race.Status, &startTime, &race.CreatedAt)
+	if err != nil {
+		return nil, fmt.Errorf("get race: %w", err)
+	}
+
+	if startTime.Valid {
+		race.StartTime = &startTime.Time
+	}
+
+	// Get participants
+	race.Players, _ = s.GetRaceParticipants(race.ID)
+
+	return &race, nil
+}
+
+// GetRaceParticipants returns all participants in a race.
+func (s *SQLite) GetRaceParticipants(raceID int64) ([]RaceParticipant, error) {
+	rows, err := s.DB.Query(`
+		SELECT rp.race_id, rp.user_id, u.nickname, rp.status, rp.finish_time, rp.verdict
+		FROM race_participants rp
+		JOIN users u ON rp.user_id = u.id
+		WHERE rp.race_id = ?
+	`, raceID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var players []RaceParticipant
+	for rows.Next() {
+		var p RaceParticipant
+		var finishTime sql.NullInt64
+		var verdict sql.NullString
+		if err := rows.Scan(&p.RaceID, &p.UserID, &p.Nickname, &p.Status, &finishTime, &verdict); err != nil {
+			continue
+		}
+		if finishTime.Valid {
+			ft := int(finishTime.Int64)
+			p.FinishTime = &ft
+		}
+		if verdict.Valid {
+			p.Verdict = &verdict.String
+		}
+		players = append(players, p)
+	}
+	return players, nil
+}
+
+// JoinRace adds a user to a race.
+func (s *SQLite) JoinRace(raceID, userID int64) error {
+	_, err := s.DB.Exec("INSERT OR IGNORE INTO race_participants (race_id, user_id) VALUES (?, ?)", raceID, userID)
+	return err
+}
+
+// UpdateRaceStatus updates the race status and optionally start time.
+func (s *SQLite) UpdateRaceStatus(raceID int64, status string, startTime *time.Time) error {
+	if startTime != nil {
+		_, err := s.DB.Exec("UPDATE races SET status = ?, start_time = ? WHERE id = ?", status, startTime, raceID)
+		return err
+	}
+	_, err := s.DB.Exec("UPDATE races SET status = ? WHERE id = ?", status, raceID)
+	return err
+}
+
+// UpdateRaceParticipant updates a participant's status in a race.
+func (s *SQLite) UpdateRaceParticipant(raceID, userID int64, status string, finishTime *int, verdict *string) error {
+	_, err := s.DB.Exec(
+		"UPDATE race_participants SET status = ?, finish_time = ?, verdict = ? WHERE race_id = ? AND user_id = ?",
+		status, finishTime, verdict, raceID, userID,
+	)
+	return err
+}

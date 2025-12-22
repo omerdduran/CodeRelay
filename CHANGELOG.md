@@ -6,79 +6,64 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
-## [2024-12-22] - Phase 4: Real-time Features
+## [2024-12-22] - Live Race Feature
 
 ### Added
 
-#### Backend WebSocket
-- `ws/hub.go` - Connection management and broadcasting
-- `ws/client.go` - Client with read/write pumps, ping/pong
-- WebSocket endpoint: `GET /ws`
-- Leaderboard endpoint: `GET /api/leaderboard`
+#### Database
+- `races` table with room_code, status, start_time
+- `race_participants` table for player tracking
 
-#### Real-time Updates
-- Worker broadcasts submission status changes via WebSocket
-- Clients receive instant verdict updates
+#### Backend API
+- `POST /api/races` - Create race room
+- `GET /api/races/{code}` - Get room info
+- `POST /api/races/{code}/join` - Join room
+- `POST /api/races/{code}/start` - Start race
 
-#### Frontend Components
-- `useWebSocket.js` - Auto-reconnect WebSocket hook
-- `Leaderboard.js` - Live rankings with real-time updates
-- `Timer.js` - Countdown timer with warning states
+#### WebSocket Events
+- `race_event.player_joined`
+- `race_event.countdown`
+- `race_event.race_started`
 
-### Dependencies Added
-- `github.com/gorilla/websocket` - WebSocket support
+#### Frontend
+- `/race` - Create/Join lobby
+- `/race/[code]` - Waiting room + Live race view
+- Countdown animation (3-2-1)
+- Real-time player status
+
+---
+
+## [2024-12-21] - Phase 4: Real-time Features
+
+### Added
+- WebSocket hub with client management
+- Leaderboard endpoint and live component
+- Timer component with warnings
 
 ---
 
 ## [2024-12-21] - Phase 3: Code Runner
 
 ### Added
-
-#### Docker Sandbox
-- Python 3.11 runner Dockerfile with non-root user
-- Resource limits: CPU, memory, process count, timeout
-- Security: No network access, read-only filesystem
-
-#### Runner Package
-- `runner.go` - Docker-based code execution
-- `verdict.go` - Output comparison (AC/WA/TLE/RE)
-
-#### Background Worker
-- `worker.go` - Processes queued submissions
-- Polls every 1 second for new submissions
-- Runs code against all test cases
-- Updates submission status with verdict
+- Python Docker sandbox
+- `runner.go` - Code execution
+- `verdict.go` - AC/WA/TLE comparison
+- Background worker for submissions
 
 ---
 
 ## [2024-12-21] - Phase 2: Basic Frontend
 
 ### Added
-
-#### Components
-- `NicknameScreen` - User authentication with localStorage
-- `CodeEditor` - Monaco Editor with Python syntax
-- `ProblemDescription` - Markdown rendering
-- `ResultsPanel` - Color-coded verdicts
-- `SubmitButton` - Loading state
-
-#### Pages
-- Main page (`/`) - Problem list
-- Problem page (`/problem/[id]`) - Split layout
-
-### Dependencies Added
-- `@monaco-editor/react`, `react-markdown`, `remark-gfm`
+- NicknameScreen, CodeEditor (Monaco), ProblemDescription
+- ResultsPanel, SubmitButton
+- Main page and problem page
 
 ---
 
 ## [2024-12-21] - Phase 1: Database & Core API
 
 ### Added
-
-#### Database Layer
-- SQLite with 4 tables
-- Embedded migrations
-- Seed data (Two Sum + test cases)
-
-#### API Endpoints
-- `/healthz`, `/api/problems`, `/api/submissions`
+- SQLite with users, problems, test_cases, submissions
+- REST API endpoints
+- Seed data (Two Sum problem)

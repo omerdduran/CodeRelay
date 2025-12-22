@@ -43,3 +43,31 @@ CREATE INDEX IF NOT EXISTS idx_submissions_created ON submissions(created_at);
 CREATE INDEX IF NOT EXISTS idx_submissions_user ON submissions(user_id);
 CREATE INDEX IF NOT EXISTS idx_submissions_problem ON submissions(problem_id);
 CREATE INDEX IF NOT EXISTS idx_test_cases_problem ON test_cases(problem_id);
+
+-- Races (competitive rooms)
+CREATE TABLE IF NOT EXISTS races (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    room_code TEXT UNIQUE NOT NULL,
+    problem_id INTEGER NOT NULL,
+    host_user_id INTEGER NOT NULL,
+    status TEXT DEFAULT 'waiting',
+    start_time DATETIME,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (problem_id) REFERENCES problems(id),
+    FOREIGN KEY (host_user_id) REFERENCES users(id)
+);
+
+-- Race participants
+CREATE TABLE IF NOT EXISTS race_participants (
+    race_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    status TEXT DEFAULT 'joined',
+    finish_time INTEGER,
+    verdict TEXT,
+    PRIMARY KEY (race_id, user_id),
+    FOREIGN KEY (race_id) REFERENCES races(id),
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_races_room_code ON races(room_code);
+CREATE INDEX IF NOT EXISTS idx_race_participants_race ON race_participants(race_id);

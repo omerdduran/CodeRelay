@@ -43,7 +43,7 @@ export function useWebSocket(onMessage) {
             };
 
             ws.onerror = (error) => {
-                console.error('WebSocket error:', error);
+                console.warn('WebSocket connection issue - will retry. Backend running?');
             };
 
             wsRef.current = ws;
