@@ -1,0 +1,57 @@
+{
+    "common": {
+        "loading": "Loading...",
+        "retry": "Retry",
+        "submit": "Submit",
+        "submitting": "Submitting..."
+    },
+    "nickname": {
+        "subtitle": "Real-time competitive coding",
+        "placeholder": "Enter your nickname",
+        "joinButton": "Join Arena",
+        "joining": "Joining...",
+        "errors": {
+            "required": "Please enter a nickname",
+            "tooShort": "Nickname must be at least 2 characters",
+            "tooLong": "Nickname must be 20 characters or less",
+            "failed": "Failed to set nickname. Please try again."
+        }
+    },
+    "home": {
+        "problems": "Problems",
+        "loadingProblems": "Loading problems...",
+        "errorLoading": "Failed to load problems. Make sure the backend is running.",
+        "noProblems": "No problems available yet.",
+        "solve": "Solve →"
+    },
+    "leaderboard": {
+        "title": "🏆 Leaderboard",
+        "live": "🟢 Live",
+        "offline": "🔴 Offline",
+        "loading": "Loading leaderboard...",
+        "empty": "No solves yet. Be the first!"
+    },
+    "results": {
+        "submitting": "Submitting...",
+        "emptyMessage": "Submit your code to see results",
+        "submissionId": "Submission ID",
+        "runtime": "Runtime",
+        "language": "Language",
+        "status": {
+            "queued": "Queued",
+            "running": "Running",
+            "AC": "Accepted",
+            "WA": "Wrong Answer",
+            "TLE": "Time Limit Exceeded"
+        }
+    },
+    "problem": {
+        "sampleTestCases": "Sample Test Cases",
+        "example": "Example",
+        "input": "Input",
+        "output": "Output"
+    },
+    "language": {
+        "select": "Language"
+    }
+}

@@ -1,22 +1,25 @@
 'use client';
 
+import { useTranslation } from 'react-i18next';
 import styles from './ResultsPanel.module.css';
 
-const STATUS_CONFIG = {
-    queued: { color: '#94a3b8', icon: '⏳', label: 'Queued' },
-    running: { color: '#60a5fa', icon: '⚡', label: 'Running' },
-    AC: { color: '#10b981', icon: '✓', label: 'Accepted' },
-    WA: { color: '#ef4444', icon: '✗', label: 'Wrong Answer' },
-    TLE: { color: '#f59e0b', icon: '⏱', label: 'Time Limit Exceeded' },
-};
-
 export default function ResultsPanel({ submission, loading }) {
+    const { t } = useTranslation();
+
+    const STATUS_CONFIG = {
+        queued: { color: '#94a3b8', icon: '⏳', label: t('results.status.queued') },
+        running: { color: '#60a5fa', icon: '⚡', label: t('results.status.running') },
+        AC: { color: '#10b981', icon: '✓', label: t('results.status.AC') },
+        WA: { color: '#ef4444', icon: '✗', label: t('results.status.WA') },
+        TLE: { color: '#f59e0b', icon: '⏱', label: t('results.status.TLE') },
+    };
+
     if (loading) {
         return (
             <div className={styles.container}>
                 <div className={styles.loading}>
                     <div className={styles.spinner}></div>
-                    <span>Submitting...</span>
+                    <span>{t('results.submitting')}</span>
                 </div>
             </div>
         );
@@ -27,7 +30,7 @@ export default function ResultsPanel({ submission, loading }) {
             <div className={styles.container}>
                 <div className={styles.empty}>
                     <span className={styles.emptyIcon}>📝</span>
-                    <p>Submit your code to see results</p>
+                    <p>{t('results.emptyMessage')}</p>
                 </div>
             </div>
         );
@@ -45,17 +48,17 @@ export default function ResultsPanel({ submission, loading }) {
 
                 <div className={styles.details}>
                     <div className={styles.detail}>
-                        <span className={styles.detailLabel}>Submission ID</span>
+                        <span className={styles.detailLabel}>{t('results.submissionId')}</span>
                         <span className={styles.detailValue}>#{submission.id}</span>
                     </div>
                     {submission.runtime_ms && (
                         <div className={styles.detail}>
-                            <span className={styles.detailLabel}>Runtime</span>
+                            <span className={styles.detailLabel}>{t('results.runtime')}</span>
                             <span className={styles.detailValue}>{submission.runtime_ms}ms</span>
                         </div>
                     )}
                     <div className={styles.detail}>
-                        <span className={styles.detailLabel}>Language</span>
+                        <span className={styles.detailLabel}>{t('results.language')}</span>
                         <span className={styles.detailValue}>{submission.language}</span>
                     </div>
                 </div>

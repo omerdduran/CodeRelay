@@ -1,9 +1,12 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from './LanguageSwitcher';
 import styles from './NicknameScreen.module.css';
 
 export default function NicknameScreen({ onNicknameSet }) {
+    const { t } = useTranslation();
     const [nickname, setNickname] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -13,15 +16,15 @@ export default function NicknameScreen({ onNicknameSet }) {
 
         const trimmed = nickname.trim();
         if (!trimmed) {
-            setError('Please enter a nickname');
+            setError(t('nickname.errors.required'));
             return;
         }
         if (trimmed.length < 2) {
-            setError('Nickname must be at least 2 characters');
+            setError(t('nickname.errors.tooShort'));
             return;
         }
         if (trimmed.length > 20) {
-            setError('Nickname must be 20 characters or less');
+            setError(t('nickname.errors.tooLong'));
             return;
         }
 
@@ -31,26 +34,29 @@ export default function NicknameScreen({ onNicknameSet }) {
         try {
             await onNicknameSet(trimmed);
         } catch (err) {
-            setError('Failed to set nickname. Please try again.');
+            setError(t('nickname.errors.failed'));
             setLoading(false);
         }
     };
 
     return (
         <div className={styles.container}>
+            <div className={styles.languageSwitcherWrapper}>
+                <LanguageSwitcher />
+            </div>
             <div className={styles.card}>
                 <div className={styles.logo}>
                     <span className={styles.logoIcon}>⚡</span>
                     <h1 className={styles.title}>CodeRelay</h1>
                 </div>
-                <p className={styles.subtitle}>Real-time competitive coding</p>
+                <p className={styles.subtitle}>{t('nickname.subtitle')}</p>
 
                 <form onSubmit={handleSubmit} className={styles.form}>
                     <input
                         type="text"
                         value={nickname}
                         onChange={(e) => setNickname(e.target.value)}
-                        placeholder="Enter your nickname"
+                        placeholder={t('nickname.placeholder')}
                         className={styles.input}
                         maxLength={20}
                         autoFocus
@@ -62,7 +68,7 @@ export default function NicknameScreen({ onNicknameSet }) {
                         className={styles.button}
                         disabled={loading}
                     >
-                        {loading ? 'Joining...' : 'Join Arena'}
+                        {loading ? t('nickname.joining') : t('nickname.joinButton')}
                     </button>
                 </form>
             </div>

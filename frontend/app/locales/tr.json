@@ -1,0 +1,57 @@
+{
+    "common": {
+        "loading": "Yükleniyor...",
+        "retry": "Tekrar Dene",
+        "submit": "Gönder",
+        "submitting": "Gönderiliyor..."
+    },
+    "nickname": {
+        "subtitle": "Gerçek zamanlı rekabetçi kodlama",
+        "placeholder": "Takma adınızı girin",
+        "joinButton": "Arenaya Katıl",
+        "joining": "Katılınıyor...",
+        "errors": {
+            "required": "Lütfen bir takma ad girin",
+            "tooShort": "Takma ad en az 2 karakter olmalı",
+            "tooLong": "Takma ad en fazla 20 karakter olabilir",
+            "failed": "Takma ad ayarlanamadı. Lütfen tekrar deneyin."
+        }
+    },
+    "home": {
+        "problems": "Problemler",
+        "loadingProblems": "Problemler yükleniyor...",
+        "errorLoading": "Problemler yüklenemedi. Backend'in çalıştığından emin olun.",
+        "noProblems": "Henüz problem bulunmuyor.",
+        "solve": "Çöz →"
+    },
+    "leaderboard": {
+        "title": "🏆 Sıralama",
+        "live": "🟢 Canlı",
+        "offline": "🔴 Çevrimdışı",
+        "loading": "Sıralama yükleniyor...",
+        "empty": "Henüz çözüm yok. İlk sen ol!"
+    },
+    "results": {
+        "submitting": "Gönderiliyor...",
+        "emptyMessage": "Sonuçları görmek için kodunuzu gönderin",
+        "submissionId": "Gönderim ID",
+        "runtime": "Çalışma Süresi",
+        "language": "Dil",
+        "status": {
+            "queued": "Sırada",
+            "running": "Çalışıyor",
+            "AC": "Kabul Edildi",
+            "WA": "Yanlış Cevap",
+            "TLE": "Zaman Aşımı"
+        }
+    },
+    "problem": {
+        "sampleTestCases": "Örnek Test Durumları",
+        "example": "Örnek",
+        "input": "Girdi",
+        "output": "Çıktı"
+    },
+    "language": {
+        "select": "Dil"
+    }
+}

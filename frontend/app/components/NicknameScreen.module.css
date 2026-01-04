@@ -5,6 +5,13 @@
   justify-content: center;
   background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 50%, #0f0f23 100%);
   padding: 1rem;
+  position: relative;
+}
+
+.languageSwitcherWrapper {
+  position: absolute;
+  top: 20px;
+  right: 20px;
 }
 
 .card {

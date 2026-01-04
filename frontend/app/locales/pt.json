@@ -1,0 +1,57 @@
+{
+    "common": {
+        "loading": "Carregando...",
+        "retry": "Tentar Novamente",
+        "submit": "Enviar",
+        "submitting": "Enviando..."
+    },
+    "nickname": {
+        "subtitle": "Programação competitiva em tempo real",
+        "placeholder": "Digite seu apelido",
+        "joinButton": "Entrar na Arena",
+        "joining": "Entrando...",
+        "errors": {
+            "required": "Por favor, digite um apelido",
+            "tooShort": "O apelido deve ter pelo menos 2 caracteres",
+            "tooLong": "O apelido deve ter no máximo 20 caracteres",
+            "failed": "Falha ao definir apelido. Tente novamente."
+        }
+    },
+    "home": {
+        "problems": "Problemas",
+        "loadingProblems": "Carregando problemas...",
+        "errorLoading": "Falha ao carregar problemas. Certifique-se de que o backend está funcionando.",
+        "noProblems": "Nenhum problema disponível ainda.",
+        "solve": "Resolver →"
+    },
+    "leaderboard": {
+        "title": "🏆 Classificação",
+        "live": "🟢 Ao Vivo",
+        "offline": "🔴 Offline",
+        "loading": "Carregando classificação...",
+        "empty": "Nenhuma solução ainda. Seja o primeiro!"
+    },
+    "results": {
+        "submitting": "Enviando...",
+        "emptyMessage": "Envie seu código para ver os resultados",
+        "submissionId": "ID da Submissão",
+        "runtime": "Tempo de Execução",
+        "language": "Linguagem",
+        "status": {
+            "queued": "Na Fila",
+            "running": "Executando",
+            "AC": "Aceito",
+            "WA": "Resposta Errada",
+            "TLE": "Tempo Limite Excedido"
+        }
+    },
+    "problem": {
+        "sampleTestCases": "Casos de Teste de Exemplo",
+        "example": "Exemplo",
+        "input": "Entrada",
+        "output": "Saída"
+    },
+    "language": {
+        "select": "Idioma"
+    }
+}

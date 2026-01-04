@@ -1,12 +1,14 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useWebSocket } from '../hooks/useWebSocket';
 import styles from './Leaderboard.module.css';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
 export default function Leaderboard({ problemId = 1 }) {
+    const { t } = useTranslation();
     const [entries, setEntries] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -44,7 +46,7 @@ export default function Leaderboard({ problemId = 1 }) {
     if (loading) {
         return (
             <div className={styles.container}>
-                <div className={styles.loading}>Loading leaderboard...</div>
+                <div className={styles.loading}>{t('leaderboard.loading')}</div>
             </div>
         );
     }
@@ -52,14 +54,14 @@ export default function Leaderboard({ problemId = 1 }) {
     return (
         <div className={styles.container}>
             <div className={styles.header}>
-                <h3 className={styles.title}>🏆 Leaderboard</h3>
+                <h3 className={styles.title}>{t('leaderboard.title')}</h3>
                 <span className={styles.status}>
-                    {connected ? '🟢 Live' : '🔴 Offline'}
+                    {connected ? t('leaderboard.live') : t('leaderboard.offline')}
                 </span>
             </div>
 
             {entries.length === 0 ? (
-                <div className={styles.empty}>No solves yet. Be the first!</div>
+                <div className={styles.empty}>{t('leaderboard.empty')}</div>
             ) : (
                 <div className={styles.list}>
                     {entries.map((entry) => (

@@ -1,8 +1,11 @@
 'use client';
 
+import { useTranslation } from 'react-i18next';
 import styles from './SubmitButton.module.css';
 
 export default function SubmitButton({ onSubmit, loading, disabled }) {
+    const { t } = useTranslation();
+
     return (
         <button
             className={styles.button}
@@ -12,12 +15,12 @@ export default function SubmitButton({ onSubmit, loading, disabled }) {
             {loading ? (
                 <>
                     <span className={styles.spinner}></span>
-                    Submitting...
+                    {t('common.submitting')}
                 </>
             ) : (
                 <>
                     <span className={styles.icon}>▶</span>
-                    Submit
+                    {t('common.submit')}
                 </>
             )}
         </button>

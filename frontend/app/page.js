@@ -1,13 +1,16 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useUser } from './hooks/useUser';
 import NicknameScreen from './components/NicknameScreen';
+import LanguageSwitcher from './components/LanguageSwitcher';
 import { fetchProblems } from './lib/api';
 import styles from './page.module.css';
 import Link from 'next/link';
 
 export default function Home() {
+  const { t } = useTranslation();
   const { user, loading: userLoading, login } = useUser();
   const [problems, setProblems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -25,7 +28,7 @@ export default function Home() {
       const data = await fetchProblems();
       setProblems(data || []);
     } catch (err) {
-      setError('Failed to load problems. Make sure the backend is running.');
+      setError(t('home.errorLoading'));
     } finally {
       setLoading(false);
     }
@@ -51,17 +54,18 @@ export default function Home() {
           <h1 className={styles.title}>CodeRelay</h1>
         </div>
         <div className={styles.userInfo}>
+          <LanguageSwitcher />
           <span className={styles.nickname}>{user.nickname}</span>
         </div>
       </header>
 
       <main className={styles.main}>
-        <h2 className={styles.sectionTitle}>Problems</h2>
+        <h2 className={styles.sectionTitle}>{t('home.problems')}</h2>
 
         {loading && (
           <div className={styles.loading}>
             <div className={styles.spinner}></div>
-            <span>Loading problems...</span>
+            <span>{t('home.loadingProblems')}</span>
           </div>
         )}
 
@@ -69,14 +73,14 @@ export default function Home() {
           <div className={styles.error}>
             <p>{error}</p>
             <button onClick={loadProblems} className={styles.retryBtn}>
-              Retry
+              {t('common.retry')}
             </button>
           </div>
         )}
 
         {!loading && !error && problems.length === 0 && (
           <div className={styles.empty}>
-            <p>No problems available yet.</p>
+            <p>{t('home.noProblems')}</p>
           </div>
         )}
 
@@ -97,7 +101,7 @@ export default function Home() {
                   <span className={styles.problemLimit}>💾 {problem.memory_limit_mb}MB</span>
                 </div>
                 <div className={styles.problemCta}>
-                  Solve →
+                  {t('home.solve')}
                 </div>
               </Link>
             ))}
