@@ -2,17 +2,19 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslation } from 'react-i18next';
 import { useUser } from '../hooks/useUser';
-import { createRace, joinRace, fetchProblems } from '../lib/api';
-import NicknameScreen from '../components/NicknameScreen';
+import AuthScreen from '../components/AuthScreen';
+import DashboardLayout from '../components/DashboardLayout';
+import { createRace, joinRace, watchRace, fetchProblems } from '../lib/api';
 import styles from './page.module.css';
-import Link from 'next/link';
 import { useEffect } from 'react';
 
 export default function RaceLobby() {
     const router = useRouter();
-    const { user, loading: userLoading, login } = useUser();
-    const [mode, setMode] = useState(null); // 'create' or 'join'
+    const { t } = useTranslation();
+    const { user, loading: userLoading, login, register, logout } = useUser();
+    const [mode, setMode] = useState(null); // 'create', 'join', or 'watch'
     const [roomCode, setRoomCode] = useState('');
     const [problems, setProblems] = useState([]);
     const [selectedProblem, setSelectedProblem] = useState(1);
@@ -30,7 +32,7 @@ export default function RaceLobby() {
             const race = await createRace(user.id, selectedProblem);
             router.push(`/race/${race.room_code}`);
         } catch (err) {
-            setError('Failed to create room');
+            setError(t('race.errors.createFailed'));
         } finally {
             setCreating(false);
         }
@@ -43,7 +45,18 @@ export default function RaceLobby() {
             await joinRace(roomCode.toUpperCase(), user.id);
             router.push(`/race/${roomCode.toUpperCase()}`);
         } catch (err) {
-            setError('Room not found or already started');
+            setError(t('race.errors.joinFailed'));
+        }
+    };
+
+    const handleWatchRoom = async () => {
+        if (!roomCode.trim()) return;
+        try {
+            setError(null);
+            await watchRace(roomCode.toUpperCase(), user.id);
+            router.push(`/race/${roomCode.toUpperCase()}`);
+        } catch (err) {
+            setError(t('race.errors.watchFailed'));
         }
     };
 
@@ -52,34 +65,35 @@ export default function RaceLobby() {
     }
 
     if (!user) {
-        return <NicknameScreen onNicknameSet={login} />;
+        return <AuthScreen onLogin={login} onRegister={register} />;
     }
 
     return (
-        <div className={styles.container}>
-            <header className={styles.header}>
-                <Link href="/" className={styles.backBtn}>← Home</Link>
-                <span className={styles.nickname}>{user.nickname}</span>
-            </header>
-
-            <main className={styles.main}>
-                <h1 className={styles.title}>⚡ Race Mode</h1>
+        <DashboardLayout user={user} onLogout={logout}>
+            <div className={styles.lobbyContainer}>
+                <h1 className={styles.title}>🏁 {t('race.title')}</h1>
 
                 {!mode && (
                     <div className={styles.options}>
                         <button className={styles.optionBtn} onClick={() => setMode('create')}>
-                            🏁 Create Room
+                            <span className={styles.optionIcon}>🎮</span>
+                            <span className={styles.optionText}>{t('race.createRoom')}</span>
                         </button>
                         <button className={styles.optionBtn} onClick={() => setMode('join')}>
-                            🚀 Join Room
+                            <span className={styles.optionIcon}>🚀</span>
+                            <span className={styles.optionText}>{t('race.joinAsPlayer')}</span>
+                        </button>
+                        <button className={`${styles.optionBtn} ${styles.spectatorBtn}`} onClick={() => setMode('watch')}>
+                            <span className={styles.optionIcon}>👁️</span>
+                            <span className={styles.optionText}>{t('race.watchAsSpectator')}</span>
                         </button>
                     </div>
                 )}
 
                 {mode === 'create' && (
                     <div className={styles.form}>
-                        <h2>Create a Room</h2>
-                        <label className={styles.label}>Select Problem</label>
+                        <h2>{t('race.createRoom')}</h2>
+                        <label className={styles.label}>{t('race.selectProblem')}</label>
                         <select
                             className={styles.select}
                             value={selectedProblem}
@@ -94,18 +108,19 @@ export default function RaceLobby() {
                             onClick={handleCreateRoom}
                             disabled={creating}
                         >
-                            {creating ? 'Creating...' : 'Create Room'}
+                            {creating ? t('race.creating') : t('race.createRoom')}
                         </button>
                         <button className={styles.backLink} onClick={() => setMode(null)}>
-                            ← Back
+                            ← {t('common.back')}
                         </button>
                     </div>
                 )}
 
                 {mode === 'join' && (
                     <div className={styles.form}>
-                        <h2>Join a Room</h2>
-                        <label className={styles.label}>Room Code</label>
+                        <h2>{t('race.joinAsPlayer')}</h2>
+                        <p className={styles.hint}>{t('race.playerHint')}</p>
+                        <label className={styles.label}>{t('race.roomCode')}</label>
                         <input
                             type="text"
                             className={styles.input}
@@ -119,16 +134,42 @@ export default function RaceLobby() {
                             onClick={handleJoinRoom}
                             disabled={!roomCode.trim()}
                         >
-                            Join Room
+                            {t('race.join')}
                         </button>
                         <button className={styles.backLink} onClick={() => setMode(null)}>
-                            ← Back
+                            ← {t('common.back')}
+                        </button>
+                    </div>
+                )}
+
+                {mode === 'watch' && (
+                    <div className={styles.form}>
+                        <h2>{t('race.watchAsSpectator')}</h2>
+                        <p className={styles.hint}>{t('race.spectatorHint')}</p>
+                        <label className={styles.label}>{t('race.roomCode')}</label>
+                        <input
+                            type="text"
+                            className={styles.input}
+                            placeholder="ABCD12"
+                            value={roomCode}
+                            onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
+                            maxLength={6}
+                        />
+                        <button
+                            className={`${styles.submitBtn} ${styles.spectatorSubmit}`}
+                            onClick={handleWatchRoom}
+                            disabled={!roomCode.trim()}
+                        >
+                            👁️ {t('race.watch')}
+                        </button>
+                        <button className={styles.backLink} onClick={() => setMode(null)}>
+                            ← {t('common.back')}
                         </button>
                     </div>
                 )}
 
                 {error && <div className={styles.error}>{error}</div>}
-            </main>
-        </div>
+            </div>
+        </DashboardLayout>
     );
 }

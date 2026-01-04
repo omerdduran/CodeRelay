@@ -398,3 +398,33 @@
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
 }
+
+/* Spectator Styles */
+.spectatorContainer {
+    height: 100vh;
+    background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 50%, #0f0f23 100%);
+}
+
+.spectatorsTitle {
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+    color: rgba(139, 92, 246, 0.8);
+}
+
+.spectator {
+    padding: 0.5rem 0.75rem;
+    background: rgba(139, 92, 246, 0.1);
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.spectatorMsg {
+    padding: 1rem;
+    background: rgba(139, 92, 246, 0.1);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    border-radius: 8px;
+    color: #c4b5fd;
+    text-align: center;
+}

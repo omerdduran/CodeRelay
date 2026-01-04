@@ -339,6 +339,7 @@ type RaceParticipant struct {
 	RaceID     int64   `json:"race_id"`
 	UserID     int64   `json:"user_id"`
 	Nickname   string  `json:"nickname,omitempty"`
+	Role       string  `json:"role"`
 	Status     string  `json:"status"`
 	FinishTime *int    `json:"finish_time,omitempty"`
 	Verdict    *string `json:"verdict,omitempty"`
@@ -356,8 +357,8 @@ func (s *SQLite) CreateRace(roomCode string, problemID, hostUserID int64) (*Race
 
 	id, _ := result.LastInsertId()
 
-	// Auto-join host
-	_, err = s.DB.Exec("INSERT INTO race_participants (race_id, user_id) VALUES (?, ?)", id, hostUserID)
+	// Auto-join host as player
+	_, err = s.DB.Exec("INSERT INTO race_participants (race_id, user_id, role) VALUES (?, ?, 'player')", id, hostUserID)
 	if err != nil {
 		return nil, fmt.Errorf("add host to race: %w", err)
 	}
@@ -391,7 +392,7 @@ func (s *SQLite) GetRaceByCode(code string) (*Race, error) {
 // GetRaceParticipants returns all participants in a race.
 func (s *SQLite) GetRaceParticipants(raceID int64) ([]RaceParticipant, error) {
 	rows, err := s.DB.Query(`
-		SELECT rp.race_id, rp.user_id, u.nickname, rp.status, rp.finish_time, rp.verdict
+		SELECT rp.race_id, rp.user_id, u.nickname, rp.role, rp.status, rp.finish_time, rp.verdict
 		FROM race_participants rp
 		JOIN users u ON rp.user_id = u.id
 		WHERE rp.race_id = ?
@@ -406,7 +407,7 @@ func (s *SQLite) GetRaceParticipants(raceID int64) ([]RaceParticipant, error) {
 		var p RaceParticipant
 		var finishTime sql.NullInt64
 		var verdict sql.NullString
-		if err := rows.Scan(&p.RaceID, &p.UserID, &p.Nickname, &p.Status, &finishTime, &verdict); err != nil {
+		if err := rows.Scan(&p.RaceID, &p.UserID, &p.Nickname, &p.Role, &p.Status, &finishTime, &verdict); err != nil {
 			continue
 		}
 		if finishTime.Valid {
@@ -421,9 +422,15 @@ func (s *SQLite) GetRaceParticipants(raceID int64) ([]RaceParticipant, error) {
 	return players, nil
 }
 
-// JoinRace adds a user to a race.
+// JoinRace adds a user to a race as a player.
 func (s *SQLite) JoinRace(raceID, userID int64) error {
-	_, err := s.DB.Exec("INSERT OR IGNORE INTO race_participants (race_id, user_id) VALUES (?, ?)", raceID, userID)
+	_, err := s.DB.Exec("INSERT OR IGNORE INTO race_participants (race_id, user_id, role) VALUES (?, ?, 'player')", raceID, userID)
+	return err
+}
+
+// JoinRaceAsSpectator adds a user to a race as a spectator.
+func (s *SQLite) JoinRaceAsSpectator(raceID, userID int64) error {
+	_, err := s.DB.Exec("INSERT OR IGNORE INTO race_participants (race_id, user_id, role) VALUES (?, ?, 'spectator')", raceID, userID)
 	return err
 }
 

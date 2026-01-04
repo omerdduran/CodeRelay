@@ -1,6 +1,7 @@
 package ws
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 	"time"
@@ -18,13 +19,13 @@ const (
 	// Send pings to peer with this period (must be less than pongWait)
 	pingPeriod = (pongWait * 9) / 10
 
-	// Maximum message size allowed from peer
-	maxMessageSize = 512
+	// Maximum message size allowed from peer (increased for code updates)
+	maxMessageSize = 65536
 )
 
 var upgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
+	ReadBufferSize:  4096,
+	WriteBufferSize: 4096,
 	CheckOrigin: func(r *http.Request) bool {
 		return true // Allow all origins for development
 	},
@@ -32,9 +33,34 @@ var upgrader = websocket.Upgrader{
 
 // Client is a middleman between the websocket connection and the hub
 type Client struct {
-	hub  *Hub
-	conn *websocket.Conn
-	send chan []byte
+	hub      *Hub
+	conn     *websocket.Conn
+	send     chan []byte
+	userID   int64
+	roomCode string
+}
+
+// IncomingMessage represents a message from client
+type IncomingMessage struct {
+	Type     string          `json:"type"`
+	RoomCode string          `json:"room_code,omitempty"`
+	UserID   int64           `json:"user_id,omitempty"`
+	Payload  json.RawMessage `json:"payload,omitempty"`
+}
+
+// CodeUpdate represents a code change from a player
+type CodeUpdate struct {
+	UserID   int64  `json:"user_id"`
+	Nickname string `json:"nickname"`
+	Code     string `json:"code"`
+	Cursor   int    `json:"cursor"`
+}
+
+// PlayerStatus represents player's current activity
+type PlayerStatus struct {
+	UserID   int64  `json:"user_id"`
+	Nickname string `json:"nickname"`
+	Status   string `json:"status"` // typing, idle, submitting
 }
 
 // readPump pumps messages from the websocket connection to the hub
@@ -52,14 +78,51 @@ func (c *Client) readPump() {
 	})
 
 	for {
-		_, _, err := c.conn.ReadMessage()
+		_, messageBytes, err := c.conn.ReadMessage()
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 				log.Printf("ws: read error: %v", err)
 			}
 			break
 		}
-		// We don't process incoming messages for now, just keep connection alive
+
+		// Parse incoming message
+		var msg IncomingMessage
+		if err := json.Unmarshal(messageBytes, &msg); err != nil {
+			continue
+		}
+
+		// Handle different message types
+		switch msg.Type {
+		case "join_room":
+			c.userID = msg.UserID
+			c.roomCode = msg.RoomCode
+			c.hub.JoinRoom(c, msg.RoomCode)
+			log.Printf("ws: [JOIN] client %d joined room %s (room has %d clients)", msg.UserID, msg.RoomCode, c.hub.RoomClientCount(msg.RoomCode))
+
+		case "code_update":
+			// Broadcast code update to room
+			if c.roomCode != "" {
+				log.Printf("ws: [CODE_UPDATE] from user %d in room %s, payload size: %d bytes", c.userID, c.roomCode, len(msg.Payload))
+				if err := c.hub.BroadcastToRoom(c.roomCode, TypeCodeUpdate, msg.Payload); err != nil {
+					log.Printf("ws: [ERROR] failed to broadcast code_update: %v", err)
+				} else {
+					log.Printf("ws: [CODE_UPDATE] broadcasted to %d clients in room %s", c.hub.RoomClientCount(c.roomCode), c.roomCode)
+				}
+			} else {
+				log.Printf("ws: [WARN] code_update from user %d but no room set", c.userID)
+			}
+
+		case "player_status":
+			// Broadcast player status to room
+			if c.roomCode != "" {
+				log.Printf("ws: [PLAYER_STATUS] from user %d in room %s", c.userID, c.roomCode)
+				c.hub.BroadcastToRoom(c.roomCode, TypePlayerStatus, msg.Payload)
+			}
+
+		default:
+			log.Printf("ws: [UNKNOWN] message type '%s' from user %d", msg.Type, c.userID)
+		}
 	}
 }
 

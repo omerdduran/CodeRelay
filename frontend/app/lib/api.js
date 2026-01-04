@@ -80,3 +80,13 @@ export async function startRace(roomCode, userId) {
     if (!res.ok) throw new Error('Failed to start race');
     return res.json();
 }
+
+export async function watchRace(roomCode, userId) {
+    const res = await fetch(`${API_URL}/api/races/${roomCode}/watch`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: userId }),
+    });
+    if (!res.ok) throw new Error('Failed to join as spectator');
+    return res.json();
+}

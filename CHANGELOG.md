@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [2024-12-22] - Bug Fixes & Improvements
+
+### Fixed
+- Spectator view now correctly displays player code updates. Fixed payload parsing issue where WebSocket messages had string payloads that needed to be parsed as JSON.
+
+### Changed
+- `make backend-run` now automatically builds the Docker runner image (`coderelay-runner`) if it doesn't exist, eliminating the need for manual build steps.
+
+---
+
 ## [2024-12-22] - Live Race Feature
 
 ### Added

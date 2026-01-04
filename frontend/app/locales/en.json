@@ -4,7 +4,8 @@
         "retry": "Retry",
         "submit": "Submit",
         "submitting": "Submitting...",
-        "logout": "Logout"
+        "logout": "Logout",
+        "back": "Back"
     },
     "auth": {
         "login": "Login",
@@ -101,6 +102,26 @@
             "timeLimit": "Time",
             "memoryLimit": "Memory",
             "solveNow": "Solve"
+        }
+    },
+    "race": {
+        "title": "Race Mode",
+        "createRoom": "Create Room",
+        "joinAsPlayer": "Join as Player",
+        "watchAsSpectator": "Watch as Spectator",
+        "selectProblem": "Select Problem",
+        "roomCode": "Room Code",
+        "creating": "Creating...",
+        "join": "Join Race",
+        "watch": "Watch Race",
+        "playerHint": "Join as a player to compete. Only available before race starts.",
+        "spectatorHint": "Watch the race live. You can join anytime, even during the race.",
+        "spectator": "Spectator",
+        "player": "Player",
+        "errors": {
+            "createFailed": "Failed to create room",
+            "joinFailed": "Room not found or already started",
+            "watchFailed": "Room not found"
         }
     }
 }

@@ -1,20 +1,23 @@
 'use client';
 
-import { useEffect, useState, useCallback, use } from 'react';
+import { useEffect, useState, useCallback, use, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslation } from 'react-i18next';
 import { useUser } from '../../hooks/useUser';
 import { useWebSocket } from '../../hooks/useWebSocket';
 import { fetchRace, startRace, createSubmission, fetchSubmission, fetchProblem } from '../../lib/api';
-import NicknameScreen from '../../components/NicknameScreen';
+import AuthScreen from '../../components/AuthScreen';
 import CodeEditor from '../../components/CodeEditor';
 import ProblemDescription from '../../components/ProblemDescription';
+import SpectatorView from '../../components/SpectatorView';
 import styles from './page.module.css';
 import Link from 'next/link';
 
 export default function RaceRoom({ params }) {
     const { code } = use(params);
+    const { t } = useTranslation();
     const router = useRouter();
-    const { user, loading: userLoading, login } = useUser();
+    const { user, loading: userLoading, login, register, logout } = useUser();
 
     const [race, setRace] = useState(null);
     const [problem, setProblem] = useState(null);
@@ -24,18 +27,22 @@ export default function RaceRoom({ params }) {
     const [codeText, setCodeText] = useState('');
     const [submitting, setSubmitting] = useState(false);
     const [myVerdict, setMyVerdict] = useState(null);
+    const [myRole, setMyRole] = useState('player');
+
+    // Ref for WebSocket to send code updates
+    const wsRef = useRef(null);
+    const lastCodeUpdateRef = useRef(0);
 
     // Handle WebSocket messages
     const handleMessage = useCallback((message) => {
         if (message.type === 'race_event') {
-            // payload might be string or already parsed object
             const payload = typeof message.payload === 'string'
                 ? JSON.parse(message.payload)
                 : message.payload;
 
             if (payload.room_code !== code) return;
 
-            if (payload.event === 'player_joined') {
+            if (payload.event === 'player_joined' || payload.event === 'spectator_joined') {
                 loadRace();
             } else if (payload.event === 'countdown') {
                 setCountdown(payload.seconds);
@@ -50,12 +57,10 @@ export default function RaceRoom({ params }) {
                 }, 1000);
             } else if (payload.event === 'race_started') {
                 setRace(prev => prev ? { ...prev, status: 'racing' } : prev);
-                // Start timer
                 const startTime = new Date(payload.start_time).getTime();
                 const timerInterval = setInterval(() => {
                     setRaceTime(Math.floor((Date.now() - startTime) / 1000));
                 }, 100);
-                // Clear on unmount
                 return () => clearInterval(timerInterval);
             } else if (payload.event === 'race_progress') {
                 loadRace();
@@ -63,12 +68,36 @@ export default function RaceRoom({ params }) {
         }
     }, [code]);
 
-    const { connected } = useWebSocket(handleMessage);
+    const { connected, ws, send } = useWebSocket(handleMessage);
+
+    // Store ws reference
+    useEffect(() => {
+        wsRef.current = ws;
+    }, [ws]);
+
+    // Join room when connected
+    useEffect(() => {
+        if (connected && user && code) {
+            console.log('[RACE] Joining room', code, 'as user', user.id);
+            send({
+                type: 'join_room',
+                room_code: code,
+                user_id: user.id
+            });
+        }
+    }, [connected, user, code, send]);
 
     const loadRace = async () => {
         try {
             const data = await fetchRace(code);
             setRace(data);
+
+            // Determine user's role
+            const participant = data.players?.find(p => p.user_id === user?.id);
+            if (participant) {
+                setMyRole(participant.role || 'player');
+            }
+
             if (data.problem_id) {
                 const prob = await fetchProblem(data.problem_id);
                 setProblem(prob);
@@ -86,6 +115,32 @@ export default function RaceRoom({ params }) {
         }
     }, [user, code]);
 
+    // Send code updates (debounced)
+    const handleCodeChange = useCallback((newCode) => {
+        setCodeText(newCode);
+
+        // Only send updates if we're a player
+        if (myRole !== 'player') return;
+
+        // Debounce to avoid flooding
+        const now = Date.now();
+        if (now - lastCodeUpdateRef.current < 200) return;
+        lastCodeUpdateRef.current = now;
+
+        console.log('[RACE] Sending code_update, length:', newCode.length);
+        send({
+            type: 'code_update',
+            room_code: code,
+            user_id: user?.id,
+            payload: JSON.stringify({
+                user_id: user?.id,
+                nickname: user?.nickname,
+                code: newCode,
+                cursor: 0
+            })
+        });
+    }, [code, user, myRole, send]);
+
     const handleStart = async () => {
         try {
             await startRace(code, user.id);
@@ -97,11 +152,22 @@ export default function RaceRoom({ params }) {
     const handleSubmit = async () => {
         if (!codeText.trim() || submitting) return;
 
+        // Send status update
+        send({
+            type: 'player_status',
+            room_code: code,
+            user_id: user?.id,
+            payload: JSON.stringify({
+                user_id: user?.id,
+                nickname: user?.nickname,
+                status: 'submitting'
+            })
+        });
+
         try {
             setSubmitting(true);
             const result = await createSubmission(user.id, race.problem_id, codeText);
 
-            // Poll for result
             const poll = setInterval(async () => {
                 const updated = await fetchSubmission(result.id);
                 if (updated.status !== 'queued' && updated.status !== 'running') {
@@ -120,19 +186,31 @@ export default function RaceRoom({ params }) {
     }
 
     if (!user) {
-        return <NicknameScreen onNicknameSet={login} />;
+        return <AuthScreen onLogin={login} onRegister={register} />;
     }
 
     if (!race) {
         return <div className={styles.error}>Race not found</div>;
     }
 
-    // Debug: log IDs for troubleshooting
-    console.log('User ID:', user.id, 'Host ID:', race.host_user_id);
-
     const isHost = Number(race.host_user_id) === Number(user.id);
     const isWaiting = race.status === 'waiting';
-    const isRacing = race.status === 'racing' || countdown !== null;
+    const isSpectator = myRole === 'spectator';
+    const players = race.players?.filter(p => p.role === 'player') || [];
+    const spectators = race.players?.filter(p => p.role === 'spectator') || [];
+
+    // Spectator View
+    if (isSpectator && race.status !== 'waiting') {
+        return (
+            <div className={styles.spectatorContainer}>
+                <SpectatorView
+                    roomCode={code}
+                    players={race.players || []}
+                    currentUserId={user.id}
+                />
+            </div>
+        );
+    }
 
     // Waiting Room
     if (isWaiting && countdown === null) {
@@ -152,29 +230,46 @@ export default function RaceRoom({ params }) {
                     </div>
 
                     <div className={styles.players}>
-                        <h3>Players ({race.players?.length || 0})</h3>
+                        <h3>Players ({players.length})</h3>
                         <ul>
-                            {race.players?.map(p => (
+                            {players.map(p => (
                                 <li key={p.user_id} className={styles.player}>
                                     {p.nickname}
                                     {p.user_id === race.host_user_id && <span className={styles.hostBadge}>Host</span>}
                                 </li>
                             ))}
                         </ul>
+
+                        {spectators.length > 0 && (
+                            <>
+                                <h3 className={styles.spectatorsTitle}>👁️ Spectators ({spectators.length})</h3>
+                                <ul>
+                                    {spectators.map(p => (
+                                        <li key={p.user_id} className={styles.spectator}>
+                                            {p.nickname}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </>
+                        )}
                     </div>
 
                     {isHost && (
                         <button
                             className={styles.startBtn}
                             onClick={handleStart}
-                            disabled={race.players?.length < 1}
+                            disabled={players.length < 1}
                         >
                             🏁 Start Race
                         </button>
                     )}
 
-                    {!isHost && (
+                    {!isHost && !isSpectator && (
                         <div className={styles.waitingMsg}>Waiting for host to start...</div>
+                    )}
+
+                    {isSpectator && (
+                        <div className={styles.spectatorMsg}>👁️ You're watching as a spectator</div>
                     )}
                 </main>
             </div>
@@ -191,13 +286,12 @@ export default function RaceRoom({ params }) {
         );
     }
 
-    // Check if race is finished (all players have verdict or user got AC)
+    // Results View
     const allFinished = race.players?.every(p => p.verdict);
     const showResults = allFinished || myVerdict === 'AC';
 
-    // Results View
     if (showResults && myVerdict) {
-        const sortedPlayers = [...(race.players || [])].sort((a, b) => {
+        const sortedPlayers = [...players].sort((a, b) => {
             if (a.verdict === 'AC' && b.verdict !== 'AC') return -1;
             if (a.verdict !== 'AC' && b.verdict === 'AC') return 1;
             return (a.finish_time || 999999) - (b.finish_time || 999999);
@@ -252,7 +346,7 @@ export default function RaceRoom({ params }) {
 
                 <div className={styles.rightPanel}>
                     <div className={styles.editorSection}>
-                        <CodeEditor onCodeChange={setCodeText} />
+                        <CodeEditor onCodeChange={handleCodeChange} />
                     </div>
 
                     <div className={styles.actionBar}>
@@ -272,7 +366,7 @@ export default function RaceRoom({ params }) {
                     </div>
 
                     <div className={styles.playersBar}>
-                        {race.players?.map(p => (
+                        {players.map(p => (
                             <div key={p.user_id} className={styles.playerStatus}>
                                 <span>{p.nickname}</span>
                                 <span className={styles.playerVerdict}>
@@ -286,4 +380,3 @@ export default function RaceRoom({ params }) {
         </div>
     );
 }
-

@@ -176,13 +176,53 @@ func generateRoomCode() string {
 	return string(code)
 }
 
-// handleRaceAction routes POST requests to join or start handlers.
+// handleWatchRace adds a spectator to a race (allowed anytime).
+func (s *Server) handleWatchRace(w http.ResponseWriter, r *http.Request) {
+	code := strings.TrimPrefix(r.URL.Path, "/api/races/")
+	code = strings.TrimSuffix(code, "/watch")
+
+	var req JoinRaceRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		s.jsonError(w, "invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	race, err := s.store.GetRaceByCode(code)
+	if err != nil {
+		s.jsonError(w, "race not found", http.StatusNotFound)
+		return
+	}
+
+	// Spectators can join anytime (waiting, racing, or finished)
+	if err := s.store.JoinRaceAsSpectator(race.ID, req.UserID); err != nil {
+		s.jsonError(w, "failed to join as spectator", http.StatusInternalServerError)
+		return
+	}
+
+	// Get updated race
+	race, _ = s.store.GetRaceByCode(code)
+
+	// Broadcast spectator joined
+	if s.hub != nil {
+		s.hub.Broadcast(ws.TypeRaceEvent, map[string]interface{}{
+			"event":     "spectator_joined",
+			"room_code": code,
+			"user_id":   req.UserID,
+		})
+	}
+
+	s.jsonResponse(w, race, http.StatusOK)
+}
+
+// handleRaceAction routes POST requests to join, start, or watch handlers.
 func (s *Server) handleRaceAction(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path
 	if strings.HasSuffix(path, "/join") {
 		s.handleJoinRace(w, r)
 	} else if strings.HasSuffix(path, "/start") {
 		s.handleStartRace(w, r)
+	} else if strings.HasSuffix(path, "/watch") {
+		s.handleWatchRace(w, r)
 	} else {
 		s.jsonError(w, "invalid race action", http.StatusBadRequest)
 	}

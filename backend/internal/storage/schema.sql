@@ -63,6 +63,7 @@ CREATE TABLE IF NOT EXISTS races (
 CREATE TABLE IF NOT EXISTS race_participants (
     race_id INTEGER NOT NULL,
     user_id INTEGER NOT NULL,
+    role TEXT DEFAULT 'player',
     status TEXT DEFAULT 'joined',
     finish_time INTEGER,
     verdict TEXT,
