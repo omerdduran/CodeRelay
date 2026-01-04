@@ -3,7 +3,31 @@
         "loading": "Yükleniyor...",
         "retry": "Tekrar Dene",
         "submit": "Gönder",
-        "submitting": "Gönderiliyor..."
+        "submitting": "Gönderiliyor...",
+        "logout": "Çıkış Yap"
+    },
+    "auth": {
+        "login": "Giriş Yap",
+        "register": "Kayıt Ol",
+        "password": "Şifre",
+        "confirmPassword": "Şifre Tekrar",
+        "nickname": "Kullanıcı Adı",
+        "noAccount": "Hesabınız yok mu?",
+        "hasAccount": "Zaten hesabınız var mı?",
+        "loggingIn": "Giriş yapılıyor...",
+        "registering": "Kayıt olunuyor...",
+        "errors": {
+            "nicknameRequired": "Lütfen bir kullanıcı adı girin",
+            "nicknameTooShort": "Kullanıcı adı en az 2 karakter olmalı",
+            "nicknameTooLong": "Kullanıcı adı en fazla 20 karakter olabilir",
+            "passwordRequired": "Lütfen bir şifre girin",
+            "passwordTooShort": "Şifre en az 6 karakter olmalı",
+            "passwordMismatch": "Şifreler eşleşmiyor",
+            "invalidCredentials": "Geçersiz kullanıcı adı veya şifre",
+            "nicknameTaken": "Bu kullanıcı adı zaten alınmış",
+            "registrationFailed": "Kayıt başarısız. Lütfen tekrar deneyin.",
+            "loginFailed": "Giriş başarısız. Lütfen tekrar deneyin."
+        }
     },
     "nickname": {
         "subtitle": "Gerçek zamanlı rekabetçi kodlama",
@@ -53,5 +77,30 @@
     },
     "language": {
         "select": "Dil"
+    },
+    "dashboard": {
+        "menu": {
+            "practice": "Pratik",
+            "races": "Yarışlar",
+            "leaderboard": "Sıralama"
+        },
+        "activeContests": "Aktif Yarışlar",
+        "noActiveContests": "Aktif yarış yok. Bir tane oluştur!",
+        "createRace": "+ Yarış Oluştur",
+        "contest": {
+            "waiting": "Bekliyor",
+            "active": "Canlı",
+            "finished": "Bitti",
+            "players": "oyuncu",
+            "join": "Katıl →",
+            "view": "Görüntüle →"
+        },
+        "problems": {
+            "title": "Problemler",
+            "difficulty": "Zorluk",
+            "timeLimit": "Süre",
+            "memoryLimit": "Bellek",
+            "solveNow": "Çöz"
+        }
     }
 }

@@ -3,30 +3,42 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useUser } from './hooks/useUser';
-import NicknameScreen from './components/NicknameScreen';
-import LanguageSwitcher from './components/LanguageSwitcher';
+import AuthScreen from './components/AuthScreen';
+import DashboardLayout from './components/DashboardLayout';
+import ContestCard from './components/ContestCard';
 import { fetchProblems } from './lib/api';
 import styles from './page.module.css';
 import Link from 'next/link';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+
 export default function Home() {
   const { t } = useTranslation();
-  const { user, loading: userLoading, login } = useUser();
+  const { user, loading: userLoading, login, register, logout } = useUser();
   const [problems, setProblems] = useState([]);
+  const [races, setRaces] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     if (user) {
-      loadProblems();
+      loadData();
     }
   }, [user]);
 
-  const loadProblems = async () => {
+  const loadData = async () => {
     try {
       setLoading(true);
-      const data = await fetchProblems();
-      setProblems(data || []);
+      const [problemsData] = await Promise.all([
+        fetchProblems(),
+        // fetchRaces() - would fetch active races if API exists
+      ]);
+      setProblems(problemsData || []);
+      // Mock races for demo
+      setRaces([
+        { room_code: 'DEMO1', title: 'Weekly Contest', status: 'waiting', player_count: 12, duration: 30 },
+        { room_code: 'DEMO2', title: 'Quick Match', status: 'active', player_count: 4, duration: 15 },
+      ]);
     } catch (err) {
       setError(t('home.errorLoading'));
     } finally {
@@ -43,24 +55,35 @@ export default function Home() {
   }
 
   if (!user) {
-    return <NicknameScreen onNicknameSet={login} />;
+    return <AuthScreen onLogin={login} onRegister={register} />;
   }
 
   return (
-    <div className={styles.container}>
-      <header className={styles.header}>
-        <div className={styles.logo}>
-          <span className={styles.logoIcon}>⚡</span>
-          <h1 className={styles.title}>CodeRelay</h1>
+    <DashboardLayout user={user} onLogout={logout}>
+      {/* Active Races Section */}
+      <section className={styles.section}>
+        <div className={styles.sectionHeader}>
+          <h2 className={styles.sectionTitle}>{t('dashboard.activeContests')}</h2>
+          <Link href="/race" className={styles.createBtn}>
+            {t('dashboard.createRace')}
+          </Link>
         </div>
-        <div className={styles.userInfo}>
-          <LanguageSwitcher />
-          <span className={styles.nickname}>{user.nickname}</span>
+        <div className={styles.contestsRow}>
+          {races.length > 0 ? (
+            races.map((race) => (
+              <ContestCard key={race.room_code} contest={race} />
+            ))
+          ) : (
+            <p className={styles.emptyText}>{t('dashboard.noActiveContests')}</p>
+          )}
         </div>
-      </header>
+      </section>
 
-      <main className={styles.main}>
-        <h2 className={styles.sectionTitle}>{t('home.problems')}</h2>
+      {/* Problems Section */}
+      <section className={styles.section}>
+        <div className={styles.sectionHeader}>
+          <h2 className={styles.sectionTitle}>{t('dashboard.problems.title')}</h2>
+        </div>
 
         {loading && (
           <div className={styles.loading}>
@@ -72,7 +95,7 @@ export default function Home() {
         {error && (
           <div className={styles.error}>
             <p>{error}</p>
-            <button onClick={loadProblems} className={styles.retryBtn}>
+            <button onClick={loadData} className={styles.retryBtn}>
               {t('common.retry')}
             </button>
           </div>
@@ -85,29 +108,34 @@ export default function Home() {
         )}
 
         {!loading && !error && problems.length > 0 && (
-          <div className={styles.problemList}>
+          <div className={styles.problemTable}>
+            <div className={styles.tableHeader}>
+              <span className={styles.colId}>#</span>
+              <span className={styles.colTitle}>{t('dashboard.problems.title')}</span>
+              <span className={styles.colTime}>{t('dashboard.problems.timeLimit')}</span>
+              <span className={styles.colMemory}>{t('dashboard.problems.memoryLimit')}</span>
+              <span className={styles.colAction}></span>
+            </div>
             {problems.map((problem) => (
               <Link
                 href={`/problem/${problem.id}`}
                 key={problem.id}
-                className={styles.problemCard}
+                className={styles.tableRow}
               >
-                <div className={styles.problemHeader}>
-                  <span className={styles.problemId}>#{problem.id}</span>
-                  <h3 className={styles.problemTitle}>{problem.title}</h3>
-                </div>
-                <div className={styles.problemMeta}>
-                  <span className={styles.problemLimit}>⏱ {problem.time_limit_ms}ms</span>
-                  <span className={styles.problemLimit}>💾 {problem.memory_limit_mb}MB</span>
-                </div>
-                <div className={styles.problemCta}>
-                  {t('home.solve')}
-                </div>
+                <span className={styles.colId}>{problem.id}</span>
+                <span className={styles.colTitle}>{problem.title}</span>
+                <span className={styles.colTime}>{problem.time_limit_ms}ms</span>
+                <span className={styles.colMemory}>{problem.memory_limit_mb}MB</span>
+                <span className={styles.colAction}>
+                  <button className={styles.solveBtn}>
+                    {t('dashboard.problems.solveNow')}
+                  </button>
+                </span>
               </Link>
             ))}
           </div>
         )}
-      </main>
-    </div>
+      </section>
+    </DashboardLayout>
   );
 }

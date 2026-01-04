@@ -3,7 +3,31 @@
         "loading": "Loading...",
         "retry": "Retry",
         "submit": "Submit",
-        "submitting": "Submitting..."
+        "submitting": "Submitting...",
+        "logout": "Logout"
+    },
+    "auth": {
+        "login": "Login",
+        "register": "Register",
+        "password": "Password",
+        "confirmPassword": "Confirm Password",
+        "nickname": "Nickname",
+        "noAccount": "Don't have an account?",
+        "hasAccount": "Already have an account?",
+        "loggingIn": "Logging in...",
+        "registering": "Registering...",
+        "errors": {
+            "nicknameRequired": "Please enter a nickname",
+            "nicknameTooShort": "Nickname must be at least 2 characters",
+            "nicknameTooLong": "Nickname must be 20 characters or less",
+            "passwordRequired": "Please enter a password",
+            "passwordTooShort": "Password must be at least 6 characters",
+            "passwordMismatch": "Passwords do not match",
+            "invalidCredentials": "Invalid nickname or password",
+            "nicknameTaken": "This nickname is already taken",
+            "registrationFailed": "Registration failed. Please try again.",
+            "loginFailed": "Login failed. Please try again."
+        }
     },
     "nickname": {
         "subtitle": "Real-time competitive coding",
@@ -53,5 +77,30 @@
     },
     "language": {
         "select": "Language"
+    },
+    "dashboard": {
+        "menu": {
+            "practice": "Practice",
+            "races": "Races",
+            "leaderboard": "Leaderboard"
+        },
+        "activeContests": "Active Races",
+        "noActiveContests": "No active races. Create one!",
+        "createRace": "+ Create Race",
+        "contest": {
+            "waiting": "Waiting",
+            "active": "Live",
+            "finished": "Ended",
+            "players": "players",
+            "join": "Join Race →",
+            "view": "View →"
+        },
+        "problems": {
+            "title": "Problems",
+            "difficulty": "Difficulty",
+            "timeLimit": "Time",
+            "memoryLimit": "Memory",
+            "solveNow": "Solve"
+        }
     }
 }

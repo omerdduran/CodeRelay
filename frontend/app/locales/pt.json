@@ -3,7 +3,31 @@
         "loading": "Carregando...",
         "retry": "Tentar Novamente",
         "submit": "Enviar",
-        "submitting": "Enviando..."
+        "submitting": "Enviando...",
+        "logout": "Sair"
+    },
+    "auth": {
+        "login": "Entrar",
+        "register": "Cadastrar",
+        "password": "Senha",
+        "confirmPassword": "Confirmar Senha",
+        "nickname": "Apelido",
+        "noAccount": "Não tem uma conta?",
+        "hasAccount": "Já tem uma conta?",
+        "loggingIn": "Entrando...",
+        "registering": "Cadastrando...",
+        "errors": {
+            "nicknameRequired": "Por favor, digite um apelido",
+            "nicknameTooShort": "O apelido deve ter pelo menos 2 caracteres",
+            "nicknameTooLong": "O apelido deve ter no máximo 20 caracteres",
+            "passwordRequired": "Por favor, digite uma senha",
+            "passwordTooShort": "A senha deve ter pelo menos 6 caracteres",
+            "passwordMismatch": "As senhas não coincidem",
+            "invalidCredentials": "Apelido ou senha inválidos",
+            "nicknameTaken": "Este apelido já está em uso",
+            "registrationFailed": "Falha no cadastro. Tente novamente.",
+            "loginFailed": "Falha no login. Tente novamente."
+        }
     },
     "nickname": {
         "subtitle": "Programação competitiva em tempo real",
@@ -53,5 +77,30 @@
     },
     "language": {
         "select": "Idioma"
+    },
+    "dashboard": {
+        "menu": {
+            "practice": "Prática",
+            "races": "Competições",
+            "leaderboard": "Classificação"
+        },
+        "activeContests": "Competições Ativas",
+        "noActiveContests": "Nenhuma competição ativa. Crie uma!",
+        "createRace": "+ Criar Competição",
+        "contest": {
+            "waiting": "Aguardando",
+            "active": "Ao Vivo",
+            "finished": "Encerrado",
+            "players": "jogadores",
+            "join": "Participar →",
+            "view": "Ver →"
+        },
+        "problems": {
+            "title": "Problemas",
+            "difficulty": "Dificuldade",
+            "timeLimit": "Tempo",
+            "memoryLimit": "Memória",
+            "solveNow": "Resolver"
+        }
     }
 }
