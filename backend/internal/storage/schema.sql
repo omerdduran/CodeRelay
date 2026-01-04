@@ -1,7 +1,9 @@
--- Users (nickname-based, no password for MVP)
+-- Users (with password authentication)
 CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     nickname TEXT UNIQUE NOT NULL,
+    email TEXT UNIQUE,
+    password_hash TEXT NOT NULL DEFAULT '',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 

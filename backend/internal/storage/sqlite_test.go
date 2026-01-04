@@ -66,7 +66,7 @@ func TestUserOperations(t *testing.T) {
 	}
 
 	// Create user
-	user, err := store.CreateUser("testplayer")
+	user, err := store.CreateUser("testplayer", "hashedpassword123")
 	if err != nil {
 		t.Fatalf("failed to create user: %v", err)
 	}

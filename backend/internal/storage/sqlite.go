@@ -17,9 +17,11 @@ var seedSQL string
 
 // User represents a player in the system.
 type User struct {
-	ID        int64     `json:"id"`
-	Nickname  string    `json:"nickname"`
-	CreatedAt time.Time `json:"created_at"`
+	ID           int64     `json:"id"`
+	Nickname     string    `json:"nickname"`
+	Email        *string   `json:"email,omitempty"`
+	PasswordHash string    `json:"-"`
+	CreatedAt    time.Time `json:"created_at"`
 }
 
 // Problem represents a coding challenge.
@@ -98,9 +100,24 @@ func (s *SQLite) Close() error {
 
 // --- User Operations ---
 
-// CreateUser creates a new user with the given nickname.
-func (s *SQLite) CreateUser(nickname string) (*User, error) {
-	result, err := s.DB.Exec("INSERT INTO users (nickname) VALUES (?)", nickname)
+// CreateUser creates a new user with the given nickname and password hash.
+func (s *SQLite) CreateUser(nickname, passwordHash string) (*User, error) {
+	result, err := s.DB.Exec("INSERT INTO users (nickname, password_hash) VALUES (?, ?)", nickname, passwordHash)
+	if err != nil {
+		return nil, fmt.Errorf("create user: %w", err)
+	}
+
+	id, err := result.LastInsertId()
+	if err != nil {
+		return nil, fmt.Errorf("get last insert id: %w", err)
+	}
+
+	return s.GetUserByID(id)
+}
+
+// CreateUserWithEmail creates a new user with nickname, email, and password hash.
+func (s *SQLite) CreateUserWithEmail(nickname, email, passwordHash string) (*User, error) {
+	result, err := s.DB.Exec("INSERT INTO users (nickname, email, password_hash) VALUES (?, ?, ?)", nickname, email, passwordHash)
 	if err != nil {
 		return nil, fmt.Errorf("create user: %w", err)
 	}
@@ -116,11 +133,15 @@ func (s *SQLite) CreateUser(nickname string) (*User, error) {
 // GetUserByID retrieves a user by ID.
 func (s *SQLite) GetUserByID(id int64) (*User, error) {
 	var u User
+	var email sql.NullString
 	err := s.DB.QueryRow(
-		"SELECT id, nickname, created_at FROM users WHERE id = ?", id,
-	).Scan(&u.ID, &u.Nickname, &u.CreatedAt)
+		"SELECT id, nickname, email, password_hash, created_at FROM users WHERE id = ?", id,
+	).Scan(&u.ID, &u.Nickname, &email, &u.PasswordHash, &u.CreatedAt)
 	if err != nil {
 		return nil, fmt.Errorf("get user by id: %w", err)
+	}
+	if email.Valid {
+		u.Email = &email.String
 	}
 	return &u, nil
 }
@@ -128,11 +149,15 @@ func (s *SQLite) GetUserByID(id int64) (*User, error) {
 // GetUserByNickname retrieves a user by nickname.
 func (s *SQLite) GetUserByNickname(nickname string) (*User, error) {
 	var u User
+	var email sql.NullString
 	err := s.DB.QueryRow(
-		"SELECT id, nickname, created_at FROM users WHERE nickname = ?", nickname,
-	).Scan(&u.ID, &u.Nickname, &u.CreatedAt)
+		"SELECT id, nickname, email, password_hash, created_at FROM users WHERE nickname = ?", nickname,
+	).Scan(&u.ID, &u.Nickname, &email, &u.PasswordHash, &u.CreatedAt)
 	if err != nil {
 		return nil, fmt.Errorf("get user by nickname: %w", err)
+	}
+	if email.Valid {
+		u.Email = &email.String
 	}
 	return &u, nil
 }
