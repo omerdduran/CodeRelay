@@ -53,7 +53,12 @@
         "live": "🟢 Ao Vivo",
         "offline": "🔴 Offline",
         "loading": "Carregando classificação...",
-        "empty": "Nenhuma solução ainda. Seja o primeiro!"
+        "empty": "Nenhuma solução ainda. Seja o primeiro!",
+        "eloRating": "Classificação ELO",
+        "globalRanking": "Classificação Global",
+        "problemRanking": "Classificação de Problema",
+        "viewElo": "Ver Classificação ELO",
+        "viewProblem": "Ver Classificação de Problema"
     },
     "results": {
         "submitting": "Enviando...",

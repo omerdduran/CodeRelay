@@ -53,7 +53,12 @@
         "live": "🟢 Canlı",
         "offline": "🔴 Çevrimdışı",
         "loading": "Sıralama yükleniyor...",
-        "empty": "Henüz çözüm yok. İlk sen ol!"
+        "empty": "Henüz çözüm yok. İlk sen ol!",
+        "eloRating": "ELO Puanı",
+        "globalRanking": "Global Sıralama",
+        "problemRanking": "Problem Sıralaması",
+        "viewElo": "ELO Sıralamasını Gör",
+        "viewProblem": "Problem Sıralamasını Gör"
     },
     "results": {
         "submitting": "Gönderiliyor...",

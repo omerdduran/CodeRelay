@@ -61,6 +61,7 @@ func New(cfg Config, hub *ws.Hub) *Server {
 	mux.HandleFunc("POST /api/submissions", srv.handleCreateSubmission)
 	mux.HandleFunc("GET /api/submissions/", srv.handleGetSubmission)
 	mux.HandleFunc("GET /api/leaderboard", srv.handleLeaderboard)
+	mux.HandleFunc("GET /api/users/", srv.handleGetUserInfo)
 	mux.HandleFunc("POST /api/users", srv.handleCreateUser)
 
 	// Auth routes

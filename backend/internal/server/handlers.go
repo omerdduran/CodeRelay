@@ -106,17 +106,46 @@ func (s *Server) handleGetSubmission(w http.ResponseWriter, r *http.Request) {
 	s.jsonResponse(w, submission, http.StatusOK)
 }
 
-// handleLeaderboard returns rankings for a problem.
+// handleLeaderboard returns rankings - either ELO-based or problem-specific.
 func (s *Server) handleLeaderboard(w http.ResponseWriter, r *http.Request) {
-	problemIDStr := r.URL.Query().Get("problem_id")
-	var problemID int64 = 1
-	if problemIDStr != "" {
-		var err error
-		problemID, err = strconv.ParseInt(problemIDStr, 10, 64)
-		if err != nil {
-			s.jsonError(w, "invalid problem_id", http.StatusBadRequest)
-			return
+	leaderboardType := r.URL.Query().Get("type")
+	
+	// If type=elo or no problem_id specified, return ELO leaderboard
+	if leaderboardType == "elo" || r.URL.Query().Get("problem_id") == "" {
+		s.handleEloLeaderboard(w, r)
+		return
+	}
+
+	// Otherwise return problem-specific leaderboard
+	s.handleProblemLeaderboard(w, r)
+}
+
+// handleEloLeaderboard returns global ELO rankings.
+func (s *Server) handleEloLeaderboard(w http.ResponseWriter, r *http.Request) {
+	limitStr := r.URL.Query().Get("limit")
+	limit := 100
+	if limitStr != "" {
+		if l, err := strconv.Atoi(limitStr); err == nil && l > 0 {
+			limit = l
 		}
+	}
+
+	entries, err := s.store.GetLeaderboard(limit)
+	if err != nil {
+		s.jsonError(w, "failed to fetch leaderboard", http.StatusInternalServerError)
+		return
+	}
+
+	s.jsonResponse(w, entries, http.StatusOK)
+}
+
+// handleProblemLeaderboard returns rankings for a specific problem.
+func (s *Server) handleProblemLeaderboard(w http.ResponseWriter, r *http.Request) {
+	problemIDStr := r.URL.Query().Get("problem_id")
+	problemID, err := strconv.ParseInt(problemIDStr, 10, 64)
+	if err != nil {
+		s.jsonError(w, "invalid problem_id", http.StatusBadRequest)
+		return
 	}
 
 	rows, err := s.store.DB.Query(`
@@ -206,6 +235,53 @@ func (s *Server) handleCreateUser(w http.ResponseWriter, r *http.Request) {
 	user.Nickname = req.Nickname
 
 	s.jsonResponse(w, user, http.StatusCreated)
+}
+
+// handleGetUserInfo returns user info with ELO rating and history.
+func (s *Server) handleGetUserInfo(w http.ResponseWriter, r *http.Request) {
+	path := strings.TrimPrefix(r.URL.Path, "/api/users/")
+	
+	// Check if requesting ELO history
+	if strings.HasSuffix(path, "/elo-history") {
+		userIDStr := strings.TrimSuffix(path, "/elo-history")
+		userID, err := strconv.ParseInt(userIDStr, 10, 64)
+		if err != nil {
+			s.jsonError(w, "invalid user id", http.StatusBadRequest)
+			return
+		}
+		
+		limitStr := r.URL.Query().Get("limit")
+		limit := 50
+		if limitStr != "" {
+			if l, err := strconv.Atoi(limitStr); err == nil && l > 0 {
+				limit = l
+			}
+		}
+		
+		history, err := s.store.GetUserEloHistory(userID, limit)
+		if err != nil {
+			s.jsonError(w, "failed to fetch ELO history", http.StatusInternalServerError)
+			return
+		}
+		
+		s.jsonResponse(w, history, http.StatusOK)
+		return
+	}
+	
+	// Otherwise return basic user info
+	userID, err := strconv.ParseInt(path, 10, 64)
+	if err != nil {
+		s.jsonError(w, "invalid user id", http.StatusBadRequest)
+		return
+	}
+	
+	user, err := s.store.GetUserByID(userID)
+	if err != nil {
+		s.jsonError(w, "user not found", http.StatusNotFound)
+		return
+	}
+	
+	s.jsonResponse(w, user, http.StatusOK)
 }
 
 // --- Helper Methods ---

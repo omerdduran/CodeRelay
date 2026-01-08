@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS users (
     nickname TEXT UNIQUE NOT NULL,
     email TEXT UNIQUE,
     password_hash TEXT NOT NULL DEFAULT '',
+    elo_rating INTEGER DEFAULT 1200,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -74,3 +75,21 @@ CREATE TABLE IF NOT EXISTS race_participants (
 
 CREATE INDEX IF NOT EXISTS idx_races_room_code ON races(room_code);
 CREATE INDEX IF NOT EXISTS idx_race_participants_race ON race_participants(race_id);
+
+-- ELO rating history (tracks rating changes)
+CREATE TABLE IF NOT EXISTS elo_history (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    race_id INTEGER NOT NULL,
+    old_rating INTEGER NOT NULL,
+    new_rating INTEGER NOT NULL,
+    rating_change INTEGER NOT NULL,
+    rank INTEGER NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (race_id) REFERENCES races(id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_elo_history_user ON elo_history(user_id);
+CREATE INDEX IF NOT EXISTS idx_elo_history_race ON elo_history(race_id);
+CREATE INDEX IF NOT EXISTS idx_users_elo_rating ON users(elo_rating DESC);

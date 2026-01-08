@@ -21,6 +21,7 @@ type User struct {
 	Nickname     string    `json:"nickname"`
 	Email        *string   `json:"email,omitempty"`
 	PasswordHash string    `json:"-"`
+	EloRating    int       `json:"elo_rating"`
 	CreatedAt    time.Time `json:"created_at"`
 }
 
@@ -135,8 +136,8 @@ func (s *SQLite) GetUserByID(id int64) (*User, error) {
 	var u User
 	var email sql.NullString
 	err := s.DB.QueryRow(
-		"SELECT id, nickname, email, password_hash, created_at FROM users WHERE id = ?", id,
-	).Scan(&u.ID, &u.Nickname, &email, &u.PasswordHash, &u.CreatedAt)
+		"SELECT id, nickname, email, password_hash, elo_rating, created_at FROM users WHERE id = ?", id,
+	).Scan(&u.ID, &u.Nickname, &email, &u.PasswordHash, &u.EloRating, &u.CreatedAt)
 	if err != nil {
 		return nil, fmt.Errorf("get user by id: %w", err)
 	}
@@ -151,8 +152,8 @@ func (s *SQLite) GetUserByNickname(nickname string) (*User, error) {
 	var u User
 	var email sql.NullString
 	err := s.DB.QueryRow(
-		"SELECT id, nickname, email, password_hash, created_at FROM users WHERE nickname = ?", nickname,
-	).Scan(&u.ID, &u.Nickname, &email, &u.PasswordHash, &u.CreatedAt)
+		"SELECT id, nickname, email, password_hash, elo_rating, created_at FROM users WHERE nickname = ?", nickname,
+	).Scan(&u.ID, &u.Nickname, &email, &u.PasswordHash, &u.EloRating, &u.CreatedAt)
 	if err != nil {
 		return nil, fmt.Errorf("get user by nickname: %w", err)
 	}
@@ -451,4 +452,111 @@ func (s *SQLite) UpdateRaceParticipant(raceID, userID int64, status string, fini
 		status, finishTime, verdict, raceID, userID,
 	)
 	return err
+}
+
+// --- ELO Rating Operations ---
+
+// EloHistory represents an ELO rating change record.
+type EloHistory struct {
+	ID           int64     `json:"id"`
+	UserID       int64     `json:"user_id"`
+	RaceID       int64     `json:"race_id"`
+	OldRating    int       `json:"old_rating"`
+	NewRating    int       `json:"new_rating"`
+	RatingChange int       `json:"rating_change"`
+	Rank         int       `json:"rank"`
+	CreatedAt    time.Time `json:"created_at"`
+}
+
+// LeaderboardEntry represents a user's position on the leaderboard.
+type LeaderboardEntry struct {
+	Rank      int       `json:"rank"`
+	UserID    int64     `json:"user_id"`
+	Nickname  string    `json:"nickname"`
+	EloRating int       `json:"elo_rating"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+// UpdateUserElo updates a user's ELO rating.
+func (s *SQLite) UpdateUserElo(userID int64, newRating int) error {
+	_, err := s.DB.Exec("UPDATE users SET elo_rating = ? WHERE id = ?", newRating, userID)
+	if err != nil {
+		return fmt.Errorf("update user elo: %w", err)
+	}
+	return nil
+}
+
+// RecordEloChange records an ELO rating change in history.
+func (s *SQLite) RecordEloChange(userID, raceID int64, oldRating, newRating, rank int) error {
+	ratingChange := newRating - oldRating
+	_, err := s.DB.Exec(
+		"INSERT INTO elo_history (user_id, race_id, old_rating, new_rating, rating_change, rank) VALUES (?, ?, ?, ?, ?, ?)",
+		userID, raceID, oldRating, newRating, ratingChange, rank,
+	)
+	if err != nil {
+		return fmt.Errorf("record elo change: %w", err)
+	}
+	return nil
+}
+
+// GetLeaderboard returns the top users sorted by ELO rating.
+func (s *SQLite) GetLeaderboard(limit int) ([]LeaderboardEntry, error) {
+	if limit <= 0 {
+		limit = 100
+	}
+
+	rows, err := s.DB.Query(`
+		SELECT id, nickname, elo_rating, created_at 
+		FROM users 
+		ORDER BY elo_rating DESC, created_at ASC 
+		LIMIT ?
+	`, limit)
+	if err != nil {
+		return nil, fmt.Errorf("get leaderboard: %w", err)
+	}
+	defer rows.Close()
+
+	var entries []LeaderboardEntry
+	rank := 1
+	for rows.Next() {
+		var entry LeaderboardEntry
+		if err := rows.Scan(&entry.UserID, &entry.Nickname, &entry.EloRating, &entry.CreatedAt); err != nil {
+			return nil, fmt.Errorf("scan leaderboard entry: %w", err)
+		}
+		entry.Rank = rank
+		entries = append(entries, entry)
+		rank++
+	}
+
+	return entries, nil
+}
+
+// GetUserEloHistory returns a user's ELO rating history.
+func (s *SQLite) GetUserEloHistory(userID int64, limit int) ([]EloHistory, error) {
+	if limit <= 0 {
+		limit = 50
+	}
+
+	rows, err := s.DB.Query(`
+		SELECT id, user_id, race_id, old_rating, new_rating, rating_change, rank, created_at 
+		FROM elo_history 
+		WHERE user_id = ? 
+		ORDER BY created_at DESC 
+		LIMIT ?
+	`, userID, limit)
+	if err != nil {
+		return nil, fmt.Errorf("get elo history: %w", err)
+	}
+	defer rows.Close()
+
+	var history []EloHistory
+	for rows.Next() {
+		var h EloHistory
+		if err := rows.Scan(&h.ID, &h.UserID, &h.RaceID, &h.OldRating, &h.NewRating, &h.RatingChange, &h.Rank, &h.CreatedAt); err != nil {
+			return nil, fmt.Errorf("scan elo history: %w", err)
+		}
+		history = append(history, h)
+	}
+
+	return history, nil
 }

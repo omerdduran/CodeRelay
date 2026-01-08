@@ -54,7 +54,12 @@
         "live": "🟢 Live",
         "offline": "🔴 Offline",
         "loading": "Loading leaderboard...",
-        "empty": "No solves yet. Be the first!"
+        "empty": "No solves yet. Be the first!",
+        "eloRating": "ELO Rating",
+        "globalRanking": "Global Ranking",
+        "problemRanking": "Problem Ranking",
+        "viewElo": "View ELO Rankings",
+        "viewProblem": "View Problem Rankings"
     },
     "results": {
         "submitting": "Submitting...",

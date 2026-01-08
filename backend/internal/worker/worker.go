@@ -2,9 +2,11 @@ package worker
 
 import (
 	"context"
+	"database/sql"
 	"log"
 	"time"
 
+	"coderelay/backend/internal/race"
 	"coderelay/backend/internal/runner"
 	"coderelay/backend/internal/storage"
 	"coderelay/backend/internal/ws"
@@ -12,19 +14,21 @@ import (
 
 // Worker processes queued submissions in the background
 type Worker struct {
-	store    *storage.SQLite
-	runner   *runner.Runner
-	hub      *ws.Hub
-	interval time.Duration
+	store       *storage.SQLite
+	runner      *runner.Runner
+	hub         *ws.Hub
+	raceService *race.Service
+	interval    time.Duration
 }
 
 // New creates a new submission worker
 func New(store *storage.SQLite, hub *ws.Hub) *Worker {
 	return &Worker{
-		store:    store,
-		runner:   runner.New(),
-		hub:      hub,
-		interval: 1 * time.Second,
+		store:       store,
+		runner:      runner.New(),
+		hub:         hub,
+		raceService: race.NewService(store, hub),
+		interval:    1 * time.Second,
 	}
 }
 
@@ -121,6 +125,9 @@ func (w *Worker) processNext() {
 	w.broadcastUpdate(sub.ID, sub.UserID, sub.ProblemID, string(finalVerdict), &runtimeMs)
 
 	log.Printf("worker: submission #%d complete: %s (%dms)", sub.ID, finalVerdict, runtimeMs)
+
+	// Check if this submission is part of a race and update race participant
+	w.handleRaceSubmission(sub.ID, sub.UserID, sub.ProblemID, string(finalVerdict), runtimeMs)
 }
 
 // broadcastUpdate sends a submission update via WebSocket
@@ -148,4 +155,58 @@ func (w *Worker) findQueuedSubmission() (*storage.Submission, error) {
 	}
 
 	return &sub, nil
+}
+
+// handleRaceSubmission checks if submission is part of a race and updates race status
+func (w *Worker) handleRaceSubmission(subID, userID, problemID int64, verdict string, runtimeMs int) {
+	// Find if user is in an active race for this problem
+	row := w.store.DB.QueryRow(`
+		SELECT r.id, r.room_code, r.start_time 
+		FROM races r
+		JOIN race_participants rp ON r.id = rp.race_id
+		WHERE r.problem_id = ? 
+		AND r.status = 'racing'
+		AND rp.user_id = ?
+		AND rp.role = 'player'
+		AND rp.status = 'racing'
+	`, problemID, userID)
+
+	var raceID int64
+	var roomCode string
+	var startTime sql.NullTime
+	if err := row.Scan(&raceID, &roomCode, &startTime); err != nil {
+		// Not in a race or already finished
+		return
+	}
+
+	// Calculate finish time from race start
+	var finishTime *int
+	if startTime.Valid {
+		elapsed := int(time.Since(startTime.Time).Milliseconds())
+		finishTime = &elapsed
+	}
+
+	// Update participant status
+	verdictStr := verdict
+	if err := w.store.UpdateRaceParticipant(raceID, userID, "finished", finishTime, &verdictStr); err != nil {
+		log.Printf("worker: failed to update race participant: %v", err)
+		return
+	}
+
+	log.Printf("worker: user %d finished race %d with verdict %s in %dms", userID, raceID, verdict, finishTime)
+
+	// Broadcast to race room
+	if w.hub != nil {
+		w.hub.BroadcastToRoom(roomCode, ws.TypeRaceEvent, map[string]interface{}{
+			"event":       "player_finished",
+			"user_id":     userID,
+			"verdict":     verdict,
+			"finish_time": finishTime,
+		})
+	}
+
+	// Check if race is complete and calculate ELO
+	if err := w.raceService.CheckRaceCompletion(raceID); err != nil {
+		log.Printf("worker: failed to check race completion: %v", err)
+	}
 }
