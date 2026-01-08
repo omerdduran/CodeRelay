@@ -9,6 +9,7 @@ services:
       JUDGE_CPU_LIMIT: "1"
       JUDGE_MEMORY_LIMIT_MB: "512"
       JUDGE_TIME_LIMIT_MS: "2000"
+      RUNNER_USE_DOCKER: "false"
     ports:
       - "8080:8080"
     volumes:
@@ -44,6 +45,13 @@ services:
     depends_on:
       api:
         condition: service_healthy
+
+  runner-image:
+    build:
+      context: ./backend/runner
+      dockerfile: Dockerfile
+    image: coderelay-runner
+    command: ["true"]
 
   sqlite:
     image: keinos/sqlite3:latest

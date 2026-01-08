@@ -17,7 +17,7 @@ RUN CGO_ENABLED=1 GOOS=linux go build -o /out/api ./cmd/api
 
 FROM debian:bookworm-slim AS runtime
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends ca-certificates curl libsqlite3-0 \
+    && apt-get install -y --no-install-recommends ca-certificates curl libsqlite3-0 python3 \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /srv/api
