@@ -57,7 +57,7 @@
     
 - One language: **Python** (start simple; add more later)
     
-- Nickname-only sign-in (cookie/local storage)
+- User accounts with **nickname + password login** (stored in SQLite)
     
 - **WebSockets** for live leaderboard & submission status (replace polling)
     
@@ -108,7 +108,7 @@
     - Use Docker resource controls and the default **seccomp** allowlist for syscall reduction
 ## Frontend
 
-- Nickname screen
+- Authentication screen (login/register with nickname + password)
     
 - Problem view (markdown statement + samples)
     
