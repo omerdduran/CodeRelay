@@ -5,7 +5,7 @@ GO_SOURCES := $(shell find $(BACKEND_DIR) -name '*.go' -not -path '*/vendor/*')
 DOCKER_IMAGE := coderelay-runner
 DOCKER_PATH := $(BACKEND_DIR)/runner
 
-.PHONY: backend-run backend-test backend-fmt backend-lint frontend-install frontend-dev frontend-build frontend-lint compose-up build-runner-image
+.PHONY: backend-run backend-test backend-fmt backend-lint frontend-install frontend-dev frontend-build frontend-lint compose-up build-runner-image backend-migrate
 
 # Build the Docker runner image if it doesn't exist
 build-runner-image:
@@ -42,3 +42,14 @@ frontend-lint:
 
 compose-up:
 	@docker compose up --build
+
+# Run database migrations
+backend-migrate:
+	@echo "Running database migrations..."
+	@cd $(BACKEND_DIR) && \
+	if [ -f coderelay.db ]; then \
+		sqlite3 coderelay.db < sqlite/migrations/002_add_elo_system.sql && \
+		echo "Migration completed successfully!"; \
+	else \
+		echo "Database file not found. It will be created on first run."; \
+	fi
