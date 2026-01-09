@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile
     environment:
       API_ADDR: :8080
-      DATABASE_URL: sqlite:///var/lib/sqlite/coderelay.db
+      DB_PATH: /srv/api/coderelay.db
       JUDGE_CPU_LIMIT: "1"
       JUDGE_MEMORY_LIMIT_MB: "512"
       JUDGE_TIME_LIMIT_MS: "2000"
@@ -13,7 +13,7 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - sqlite-data:/var/lib/sqlite
+      - ./backend/coderelay.db:/srv/api/coderelay.db
       - ./backend/sqlite/migrations:/srv/api/sqlite/migrations:ro
       - ./backend:/workspace/backend:ro
     healthcheck:
@@ -21,9 +21,6 @@ services:
       interval: 5s
       timeout: 2s
       retries: 5
-    depends_on:
-      sqlite:
-        condition: service_healthy
 
   frontend:
     build:
@@ -53,26 +50,3 @@ services:
     image: coderelay-runner
     command: ["true"]
 
-  sqlite:
-    image: keinos/sqlite3:latest
-    user: "0"
-    command:
-      - sh
-      - "-c"
-      - |
-        mkdir -p /var/lib/sqlite
-        touch /var/lib/sqlite/coderelay.db
-        exec tail -f /dev/null
-    environment:
-      SQLITE_DB_PATH: /var/lib/sqlite/coderelay.db
-    volumes:
-      - sqlite-data:/var/lib/sqlite
-    healthcheck:
-      test: ["CMD-SHELL", "test -f /var/lib/sqlite/coderelay.db"]
-      interval: 5s
-      timeout: 2s
-      retries: 10
-
-volumes:
-  sqlite-data:
-    driver: local

@@ -381,6 +381,17 @@
     text-align: right;
 }
 
+.resultElo {
+    font-family: 'Fira Code', monospace;
+    min-width: 4rem;
+    text-align: right;
+    color: rgba(16, 185, 129, 0.9);
+}
+
+.resultEloNegative {
+    color: #ef4444;
+}
+
 .newRaceBtn {
     display: inline-block;
     padding: 1rem 2rem;

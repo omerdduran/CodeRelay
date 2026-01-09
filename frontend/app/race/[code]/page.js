@@ -28,6 +28,7 @@ export default function RaceRoom({ params }) {
     const [submitting, setSubmitting] = useState(false);
     const [myVerdict, setMyVerdict] = useState(null);
     const [myRole, setMyRole] = useState('player');
+    const [eloChanges, setEloChanges] = useState([]);
 
     // Ref for WebSocket to send code updates
     const wsRef = useRef(null);
@@ -40,7 +41,8 @@ export default function RaceRoom({ params }) {
                 ? JSON.parse(message.payload)
                 : message.payload;
 
-            if (payload.room_code !== code) return;
+            // Some events are broadcast globally with room_code, others are room-scoped.
+            if (payload.room_code && payload.room_code !== code) return;
 
             if (payload.event === 'player_joined' || payload.event === 'spectator_joined') {
                 loadRace();
@@ -62,8 +64,12 @@ export default function RaceRoom({ params }) {
                     setRaceTime(Math.floor((Date.now() - startTime) / 1000));
                 }, 100);
                 return () => clearInterval(timerInterval);
-            } else if (payload.event === 'race_progress') {
+            } else if (payload.event === 'race_progress' || payload.event === 'player_finished') {
+                // Reload race state when someone finishes or progress updates
                 loadRace();
+            } else if (payload.event === 'elo_updated') {
+                // Store ELO changes for results screen
+                setEloChanges(payload.elo_changes || []);
             }
         }
     }, [code]);
@@ -287,8 +293,8 @@ export default function RaceRoom({ params }) {
     }
 
     // Results View
-    const allFinished = race.players?.every(p => p.verdict);
-    const showResults = allFinished || myVerdict === 'AC';
+    const allFinished = players.length > 0 && players.every(p => p.verdict);
+    const showResults = allFinished;
 
     if (showResults && myVerdict) {
         const sortedPlayers = [...players].sort((a, b) => {
@@ -297,29 +303,48 @@ export default function RaceRoom({ params }) {
             return (a.finish_time || 999999) - (b.finish_time || 999999);
         });
 
+        const eloByUserId = {};
+        eloChanges.forEach(change => {
+            if (change && typeof change.user_id === 'number') {
+                eloByUserId[change.user_id] = change;
+            }
+        });
+
         return (
             <div className={styles.resultsScreen}>
                 <div className={styles.resultsCard}>
                     <h1 className={styles.resultsTitle}>🏁 Race Results</h1>
 
                     <div className={styles.resultsList}>
-                        {sortedPlayers.map((p, idx) => (
-                            <div
-                                key={p.user_id}
-                                className={`${styles.resultItem} ${p.user_id === user.id ? styles.me : ''}`}
-                            >
-                                <span className={styles.resultRank}>
-                                    {idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `#${idx + 1}`}
-                                </span>
-                                <span className={styles.resultName}>{p.nickname}</span>
-                                <span className={`${styles.resultVerdict} ${p.verdict === 'AC' ? styles.ac : styles.wa}`}>
-                                    {p.verdict || '-'}
-                                </span>
-                                <span className={styles.resultTime}>
-                                    {p.finish_time ? `${(p.finish_time / 1000).toFixed(1)}s` : '-'}
-                                </span>
-                            </div>
-                        ))}
+                        {sortedPlayers.map((p, idx) => {
+                            const eloChange = eloByUserId[p.user_id];
+                            const ratingDelta = eloChange ? eloChange.rating_change : 0;
+                            const eloClass =
+                                ratingDelta < 0
+                                    ? `${styles.resultElo} ${styles.resultEloNegative}`
+                                    : styles.resultElo;
+
+                            return (
+                                <div
+                                    key={p.user_id}
+                                    className={`${styles.resultItem} ${p.user_id === user.id ? styles.me : ''}`}
+                                >
+                                    <span className={styles.resultRank}>
+                                        {idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `#${idx + 1}`}
+                                    </span>
+                                    <span className={styles.resultName}>{p.nickname}</span>
+                                    <span className={`${styles.resultVerdict} ${p.verdict === 'AC' ? styles.ac : styles.wa}`}>
+                                        {p.verdict || '-'}
+                                    </span>
+                                    <span className={styles.resultTime}>
+                                        {p.finish_time ? `${(p.finish_time / 1000).toFixed(1)}s` : '-'}
+                                    </span>
+                                    <span className={eloClass}>
+                                        {ratingDelta > 0 ? `+${ratingDelta}` : `${ratingDelta}`}
+                                    </span>
+                                </div>
+                            );
+                        })}
                     </div>
 
                     <Link href="/race" className={styles.newRaceBtn}>
