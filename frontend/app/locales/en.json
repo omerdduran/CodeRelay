@@ -72,7 +72,8 @@
             "running": "Running",
             "AC": "Accepted",
             "WA": "Wrong Answer",
-            "TLE": "Time Limit Exceeded"
+            "TLE": "Time Limit Exceeded",
+            "RE": "Runtime Error"
         }
     },
     "problem": {
@@ -123,6 +124,38 @@
         "spectatorHint": "Watch the race live. You can join anytime, even during the race.",
         "spectator": "Spectator",
         "player": "Player",
+        "waitingForPlayers": "Waiting for players...",
+        "shareCodeLabel": "Share this code",
+        "playersTitle": "Players",
+        "spectatorsTitle": "Spectators",
+        "hostBadge": "Host",
+        "waitingForHost": "Waiting for host to start...",
+        "spectatorWatching": "You're watching as a spectator",
+        "countdownText": "Get Ready!",
+        "resultsTitle": "🏁 Race Results",
+        "newRace": "New Race",
+        "roomLabel": "Room",
+        "raceHeader": "Race",
+        "notFound": "Race not found",
+        "status": {
+            "typing": "⌨️ Typing",
+            "idle": "💤 Idle",
+            "submitting": "🚀 Submitting",
+            "finished": "✅ Done"
+        },
+        "spectatorView": {
+            "grid": "Grid",
+            "focus": "Focus",
+            "waitingForCode": "Waiting for code...",
+            "prev": "Prev",
+            "next": "Next",
+            "watching": "Watching",
+            "backToGrid": "Back to Grid View"
+        },
+        "spectatorPanel": {
+            "lines": "{{count}} lines",
+            "clickToFocus": "Click to focus"
+        },
         "errors": {
             "createFailed": "Failed to create room",
             "joinFailed": "Room not found or already started",

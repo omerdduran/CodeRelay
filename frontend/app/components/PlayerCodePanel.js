@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import styles from './PlayerCodePanel.module.css';
 
 const STATUS_COLORS = {
@@ -10,14 +11,15 @@ const STATUS_COLORS = {
     finished: '#8b5cf6',
 };
 
-const STATUS_LABELS = {
-    typing: '⌨️ Typing',
-    idle: '💤 Idle',
-    submitting: '🚀 Submitting',
-    finished: '✅ Done',
+const STATUS_KEYS = {
+    typing: 'typing',
+    idle: 'idle',
+    submitting: 'submitting',
+    finished: 'finished',
 };
 
 export default function PlayerCodePanel({ player, code, status, isCompact, onClick }) {
+    const { t } = useTranslation();
     // Truncate code for compact view
     const displayCode = useMemo(() => {
         if (!isCompact) return code;
@@ -45,7 +47,7 @@ export default function PlayerCodePanel({ player, code, status, isCompact, onCli
                     <span className={styles.nickname}>{player.nickname}</span>
                 </div>
                 <div className={styles.status} style={{ color: STATUS_COLORS[status] }}>
-                    {STATUS_LABELS[status] || status}
+                    {STATUS_KEYS[status] ? t(`race.status.${STATUS_KEYS[status]}`) : status}
                 </div>
             </div>
             <div className={styles.codeContainer}>
@@ -58,8 +60,10 @@ export default function PlayerCodePanel({ player, code, status, isCompact, onCli
             </div>
             {isCompact && (
                 <div className={styles.footer}>
-                    <span className={styles.lineCount}>{lineCount} lines</span>
-                    <span className={styles.clickHint}>Click to focus</span>
+                    <span className={styles.lineCount}>
+                        {t('race.spectatorPanel.lines', { count: lineCount })}
+                    </span>
+                    <span className={styles.clickHint}>{t('race.spectatorPanel.clickToFocus')}</span>
                 </div>
             )}
         </div>

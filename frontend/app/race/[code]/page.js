@@ -196,7 +196,7 @@ export default function RaceRoom({ params }) {
     }
 
     if (!race) {
-        return <div className={styles.error}>Race not found</div>;
+        return <div className={styles.error}>{t('race.notFound')}</div>;
     }
 
     const isHost = Number(race.host_user_id) === Number(user.id);
@@ -223,32 +223,32 @@ export default function RaceRoom({ params }) {
         return (
             <div className={styles.container}>
                 <header className={styles.header}>
-                    <Link href="/race" className={styles.backBtn}>← Leave</Link>
-                    <span className={styles.roomCode}>Room: {code}</span>
+                    <Link href="/race" className={styles.backBtn}>← {t('common.back')}</Link>
+                    <span className={styles.roomCode}>{t('race.roomLabel')}: {code}</span>
                 </header>
 
                 <main className={styles.waitingRoom}>
-                    <h1 className={styles.title}>Waiting for players...</h1>
+                    <h1 className={styles.title}>{t('race.waitingForPlayers')}</h1>
 
                     <div className={styles.code}>
-                        <span className={styles.codeLabel}>Share this code</span>
+                        <span className={styles.codeLabel}>{t('race.shareCodeLabel')}</span>
                         <span className={styles.codeValue}>{code}</span>
                     </div>
 
                     <div className={styles.players}>
-                        <h3>Players ({players.length})</h3>
+                        <h3>{t('race.playersTitle')} ({players.length})</h3>
                         <ul>
                             {players.map(p => (
                                 <li key={p.user_id} className={styles.player}>
                                     {p.nickname}
-                                    {p.user_id === race.host_user_id && <span className={styles.hostBadge}>Host</span>}
+                                    {p.user_id === race.host_user_id && <span className={styles.hostBadge}>{t('race.hostBadge')}</span>}
                                 </li>
                             ))}
                         </ul>
 
                         {spectators.length > 0 && (
                             <>
-                                <h3 className={styles.spectatorsTitle}>👁️ Spectators ({spectators.length})</h3>
+                                <h3 className={styles.spectatorsTitle}>👁️ {t('race.spectatorsTitle')} ({spectators.length})</h3>
                                 <ul>
                                     {spectators.map(p => (
                                         <li key={p.user_id} className={styles.spectator}>
@@ -271,11 +271,11 @@ export default function RaceRoom({ params }) {
                     )}
 
                     {!isHost && !isSpectator && (
-                        <div className={styles.waitingMsg}>Waiting for host to start...</div>
+                        <div className={styles.waitingMsg}>{t('race.waitingForHost')}</div>
                     )}
 
                     {isSpectator && (
-                        <div className={styles.spectatorMsg}>👁️ You're watching as a spectator</div>
+                        <div className={styles.spectatorMsg}>👁️ {t('race.spectatorWatching')}</div>
                     )}
                 </main>
             </div>
@@ -287,7 +287,7 @@ export default function RaceRoom({ params }) {
         return (
             <div className={styles.countdownScreen}>
                 <div className={styles.countdownNumber}>{countdown}</div>
-                <div className={styles.countdownText}>Get Ready!</div>
+                <div className={styles.countdownText}>{t('race.countdownText')}</div>
             </div>
         );
     }
@@ -313,7 +313,7 @@ export default function RaceRoom({ params }) {
         return (
             <div className={styles.resultsScreen}>
                 <div className={styles.resultsCard}>
-                    <h1 className={styles.resultsTitle}>🏁 Race Results</h1>
+                    <h1 className={styles.resultsTitle}>{t('race.resultsTitle')}</h1>
 
                     <div className={styles.resultsList}>
                         {sortedPlayers.map((p, idx) => {
@@ -348,7 +348,7 @@ export default function RaceRoom({ params }) {
                     </div>
 
                     <Link href="/race" className={styles.newRaceBtn}>
-                        🔄 New Race
+                        🔄 {t('race.newRace')}
                     </Link>
                 </div>
             </div>
@@ -359,7 +359,7 @@ export default function RaceRoom({ params }) {
     return (
         <div className={styles.raceContainer}>
             <header className={styles.raceHeader}>
-                <span className={styles.roomCode}>Race: {code}</span>
+                <span className={styles.roomCode}>{t('race.raceHeader')}: {code}</span>
                 <span className={styles.timer}>⏱ {Math.floor(raceTime / 60)}:{String(raceTime % 60).padStart(2, '0')}</span>
                 <span className={styles.wsStatus}>{connected ? '🟢' : '🔴'}</span>
             </header>
@@ -377,7 +377,9 @@ export default function RaceRoom({ params }) {
                     <div className={styles.actionBar}>
                         {myVerdict ? (
                             <div className={`${styles.verdict} ${myVerdict === 'AC' ? styles.ac : styles.wa}`}>
-                                {myVerdict === 'AC' ? '✓ Accepted!' : `✗ ${myVerdict}`}
+                                {myVerdict === 'AC'
+                                    ? `✓ ${t('results.status.AC')}`
+                                    : `✗ ${t(`results.status.${myVerdict}`) || myVerdict}`}
                             </div>
                         ) : (
                             <button
@@ -385,7 +387,7 @@ export default function RaceRoom({ params }) {
                                 onClick={handleSubmit}
                                 disabled={submitting || !codeText.trim()}
                             >
-                                {submitting ? 'Submitting...' : '▶ Submit'}
+                                {submitting ? t('common.submitting') : `▶ ${t('common.submit')}`}
                             </button>
                         )}
                     </div>

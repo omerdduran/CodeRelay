@@ -4,7 +4,8 @@
         "retry": "Tekrar Dene",
         "submit": "Gönder",
         "submitting": "Gönderiliyor...",
-        "logout": "Çıkış Yap"
+        "logout": "Çıkış Yap",
+        "back": "Geri"
     },
     "auth": {
         "login": "Giriş Yap",
@@ -71,7 +72,8 @@
             "running": "Çalışıyor",
             "AC": "Kabul Edildi",
             "WA": "Yanlış Cevap",
-            "TLE": "Zaman Aşımı"
+            "TLE": "Zaman Aşımı",
+            "RE": "Çalışma Hatası"
         }
     },
     "problem": {
@@ -106,6 +108,58 @@
             "timeLimit": "Süre",
             "memoryLimit": "Bellek",
             "solveNow": "Çöz"
+        }
+    },
+    "race": {
+        "title": "Yarış Modu",
+        "createRoom": "Oda Oluştur",
+        "joinAsPlayer": "Oyuncu Olarak Katıl",
+        "watchAsSpectator": "İzleyici Olarak İzle",
+        "selectProblem": "Problem Seç",
+        "roomCode": "Oda Kodu",
+        "creating": "Oluşturuluyor...",
+        "join": "Yarışa Katıl",
+        "watch": "Yarışı İzle",
+        "playerHint": "Yarışmak için oyuncu olarak katıl. Sadece yarış başlamadan önce mümkün.",
+        "spectatorHint": "Yarışı canlı izle. Yarış sırasında bile istediğin zaman katılabilirsin.",
+        "spectator": "İzleyici",
+        "player": "Oyuncu",
+        "waitingForPlayers": "Oyuncular bekleniyor...",
+        "shareCodeLabel": "Bu kodu paylaş",
+        "playersTitle": "Oyuncular",
+        "spectatorsTitle": "İzleyiciler",
+        "hostBadge": "Host",
+        "waitingForHost": "Hostun yarışı başlatması bekleniyor...",
+        "spectatorWatching": "İzleyici olarak izliyorsun",
+        "countdownText": "Hazır ol!",
+        "resultsTitle": "🏁 Yarış Sonuçları",
+        "newRace": "Yeni Yarış",
+        "roomLabel": "Oda",
+        "raceHeader": "Yarış",
+        "notFound": "Yarış bulunamadı",
+        "status": {
+            "typing": "⌨️ Yazıyor",
+            "idle": "💤 Boşta",
+            "submitting": "🚀 Gönderiliyor",
+            "finished": "✅ Bitti"
+        },
+        "spectatorView": {
+            "grid": "Grid",
+            "focus": "Odak",
+            "waitingForCode": "Kod bekleniyor...",
+            "prev": "Önceki",
+            "next": "Sonraki",
+            "watching": "İzliyorsun",
+            "backToGrid": "Grid görünüme dön"
+        },
+        "spectatorPanel": {
+            "lines": "{{count}} satır",
+            "clickToFocus": "Odaklamak için tıkla"
+        },
+        "errors": {
+            "createFailed": "Oda oluşturulamadı",
+            "joinFailed": "Oda bulunamadı veya zaten başlamış",
+            "watchFailed": "Oda bulunamadı"
         }
     }
 }

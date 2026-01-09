@@ -4,7 +4,8 @@
         "retry": "Tentar Novamente",
         "submit": "Enviar",
         "submitting": "Enviando...",
-        "logout": "Sair"
+        "logout": "Sair",
+        "back": "Voltar"
     },
     "auth": {
         "login": "Entrar",
@@ -71,7 +72,8 @@
             "running": "Executando",
             "AC": "Aceito",
             "WA": "Resposta Errada",
-            "TLE": "Tempo Limite Excedido"
+            "TLE": "Tempo Limite Excedido",
+            "RE": "Erro de Execução"
         }
     },
     "problem": {
@@ -106,6 +108,58 @@
             "timeLimit": "Tempo",
             "memoryLimit": "Memória",
             "solveNow": "Resolver"
+        }
+    },
+    "race": {
+        "title": "Modo Corrida",
+        "createRoom": "Criar Sala",
+        "joinAsPlayer": "Entrar como Jogador",
+        "watchAsSpectator": "Assistir como Espectador",
+        "selectProblem": "Selecionar Problema",
+        "roomCode": "Código da Sala",
+        "creating": "Criando...",
+        "join": "Entrar na Corrida",
+        "watch": "Assistir Corrida",
+        "playerHint": "Entre como jogador para competir. Só é possível antes da corrida começar.",
+        "spectatorHint": "Assista à corrida ao vivo. Você pode entrar a qualquer momento, mesmo durante a corrida.",
+        "spectator": "Espectador",
+        "player": "Jogador",
+        "waitingForPlayers": "Aguardando jogadores...",
+        "shareCodeLabel": "Compartilhe este código",
+        "playersTitle": "Jogadores",
+        "spectatorsTitle": "Espectadores",
+        "hostBadge": "Host",
+        "waitingForHost": "Aguardando o host iniciar...",
+        "spectatorWatching": "Você está assistindo como espectador",
+        "countdownText": "Prepare-se!",
+        "resultsTitle": "🏁 Resultados da Corrida",
+        "newRace": "Nova Corrida",
+        "roomLabel": "Sala",
+        "raceHeader": "Corrida",
+        "notFound": "Corrida não encontrada",
+        "status": {
+            "typing": "⌨️ Digitando",
+            "idle": "💤 Inativo",
+            "submitting": "🚀 Enviando",
+            "finished": "✅ Finalizado"
+        },
+        "spectatorView": {
+            "grid": "Grade",
+            "focus": "Foco",
+            "waitingForCode": "Aguardando código...",
+            "prev": "Anterior",
+            "next": "Próximo",
+            "watching": "Assistindo",
+            "backToGrid": "Voltar para visão em grade"
+        },
+        "spectatorPanel": {
+            "lines": "{{count}} linhas",
+            "clickToFocus": "Clique para focar"
+        },
+        "errors": {
+            "createFailed": "Falha ao criar sala",
+            "joinFailed": "Sala não encontrada ou já iniciada",
+            "watchFailed": "Sala não encontrada"
         }
     }
 }

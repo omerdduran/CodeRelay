@@ -120,14 +120,14 @@ export default function SpectatorView({ roomCode, players, currentUserId }) {
                             className={`${styles.toggleBtn} ${viewMode === 'grid' ? styles.active : ''}`}
                             onClick={() => setViewMode('grid')}
                         >
-                            ⊞ Grid
+                            ⊞ {t('race.spectatorView.grid')}
                         </button>
                         <button
                             className={`${styles.toggleBtn} ${viewMode === 'focus' ? styles.active : ''}`}
                             onClick={() => focusedPlayer ? setViewMode('focus') : null}
                             disabled={!focusedPlayer}
                         >
-                            ⊡ Focus
+                            ⊡ {t('race.spectatorView.focus')}
                         </button>
                     </div>
                 </div>
@@ -142,7 +142,7 @@ export default function SpectatorView({ roomCode, players, currentUserId }) {
                         <PlayerCodePanel
                             key={player.user_id}
                             player={player}
-                            code={playerCodes[player.user_id]?.code || '# Waiting for code...'}
+                            code={playerCodes[player.user_id]?.code || `# ${t('race.spectatorView.waitingForCode')}`}
                             status={playerStatuses[player.user_id] || 'idle'}
                             isCompact={true}
                             onClick={() => handlePlayerClick(player)}
@@ -153,25 +153,25 @@ export default function SpectatorView({ roomCode, players, currentUserId }) {
                 <div className={styles.focusView}>
                     <div className={styles.focusHeader}>
                         <button className={styles.navBtn} onClick={() => handleNavigatePlayer('prev')}>
-                            ◀ Prev
+                            ◀ {t('race.spectatorView.prev')}
                         </button>
                         <span className={styles.focusTitle}>
-                            👁️ Watching: {focusedPlayer?.nickname}
+                            👁️ {t('race.spectatorView.watching')}: {focusedPlayer?.nickname}
                         </span>
                         <button className={styles.navBtn} onClick={() => handleNavigatePlayer('next')}>
-                            Next ▶
+                            {t('race.spectatorView.next')} ▶
                         </button>
                     </div>
                     {focusedPlayer && (
                         <PlayerCodePanel
                             player={focusedPlayer}
-                            code={playerCodes[focusedPlayer.user_id]?.code || '# Waiting for code...'}
+                            code={playerCodes[focusedPlayer.user_id]?.code || `# ${t('race.spectatorView.waitingForCode')}`}
                             status={playerStatuses[focusedPlayer.user_id] || 'idle'}
                             isCompact={false}
                         />
                     )}
                     <button className={styles.backToGridBtn} onClick={handleBackToGrid}>
-                        ⊞ Back to Grid View
+                        ⊞ {t('race.spectatorView.backToGrid')}
                     </button>
                 </div>
             )}
